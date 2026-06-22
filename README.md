@@ -1,4 +1,3 @@
-<img width="329" height="629" alt="Screenshot 2026-06-22 at 7 11 28 PM" src="https://github.com/user-attachments/assets/66a91cc3-1eb8-4b25-9758-2afb7deff279" />
 # ExamAI - Smart Study Assistant 🎓
 
 ![Android](https://img.shields.io/badge/Platform-Android-green)
