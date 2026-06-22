@@ -14,7 +14,6 @@ no API keys — just open and start studying!
 ## 📸 Screenshots
 <img width="333" height="722" alt="Screenshot 2026-06-22 at 6 58 19 PM" src="https://github.com/user-attachments/assets/976dfad9-725a-4e22-bc7a-9114dba06911" />
 <img width="333" height="708" alt="Screenshot 2026-06-22 at 6 59 04 PM" src="https://github.com/user-attachments/assets/09f77fa2-c77c-4d28-b28d-4187028271e7" />
-<img width="336" height="696" alt="Screenshot 2026-06-22 at 6 58 53 PM" src="https://github.com/user-attachments/assets/1adbdd4f-455f-4533-a6af-6ea3c731f1a1" />
 <img width="322" height="690" alt="Screenshot 2026-06-22 at 6 58 37 PM" src="https://github.com/user-attachments/assets/15b3eca7-b3b4-4904-8b2a-0a32ecc35bce" />
 <img width="331" height="693" alt="Screenshot 2026-06-22 at 6 59 24 PM" src="https://github.com/user-attachments/assets/72038237-46ad-485d-b865-76afeeacb064" />
 <img width="330" height="701" alt="Screenshot 2026-06-22 at 6 59 42 PM" src="https://github.com/user-attachments/assets/2a94d1ae-7a37-41c1-bc17-61e8ae8c3ff4" />
