@@ -5,7 +5,7 @@
 **Developer:** Raiyan Shahid  
 **App Name:** ExamAI – Smart Study Assistant  
 **Package Name:** com.examai.studyassistant  
-**Contact Email:** your@email.com  
+**Contact Email:** raiyannshahid@gmail.com
 
 ---
 
@@ -232,7 +232,7 @@ If you have any questions, concerns, or requests regarding
 this Privacy Policy, please contact us:
 
 **Developer:** Raiyan Shahid  
-**Email:** your@email.com  
+**Email:** raiyannshahid@gmail.com
 **GitHub:** https://github.com/yourusername/ExamAI  
 **Response Time:** Within 48 hours  
 
