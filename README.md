@@ -12,11 +12,15 @@ no API keys — just open and start studying!
 ---
 
 ## 📸 Screenshots
-<img width="1080" height="2400" alt="Screenshot_20260622_191411" src="https://github.com/user-attachments/assets/f7fc6721-a93d-4ca1-b03d-75bbcd6181c6" />
-<img width="1080" height="2400" alt="Screenshot_20260622_191358" src="https://github.com/user-attachments/assets/fb34b9ac-c02c-4d53-bcad-c20bfcb407dd" />
-<img width="1080" height="2400" alt="Screenshot_20260622_191346" src="https://github.com/user-attachments/assets/2d8faf1b-1618-4d86-a886-3a45a8af2a2d" />
-<img width="1080" height="2400" alt="Screenshot_20260622_191337" src="https://github.com/user-attachments/assets/e87131d0-9d6b-4db0-abee-6bcbae6f442d" />
-<img width="1080" height="2400" alt="Screenshot_20260622_191306" src="https://github.com/user-attachments/assets/546a624e-c280-43ff-bad0-d9bf8c67bf99" />
+
+<p align="center">
+<img width="200" height="433" alt="Screenshot_20260622_191411" src="https://github.com/user-attachments/assets/81b26611-9833-416e-8c34-1c670d74a78b" />
+<img width="200" height="433" alt="Screenshot_20260622_191358" src="https://github.com/user-attachments/assets/33cfd666-59f1-4e09-84af-f2adc5a65269" />
+<img width="200" height="433" alt="Screenshot_20260622_191346" src="https://github.com/user-attachments/assets/d272b674-72a3-4be0-8a6e-f9a1961e29dc" />
+<img width="200" height="433" alt="Screenshot_20260622_191337" src="https://github.com/user-attachments/assets/833f2a64-3b8e-4f86-83d7-4ba6383b0f36" />
+<img width="200" height="433" alt="Screenshot_20260622_191306" src="https://github.com/user-attachments/assets/f74ca735-13ae-4051-9b50-f2299a9dcd74" />
+</p>
+
 
 
 ---
