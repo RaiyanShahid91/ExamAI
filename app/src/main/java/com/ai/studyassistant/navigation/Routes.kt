@@ -9,6 +9,8 @@ object Routes {
     const val QUIZ = "quiz/{exam}/{subject}/{topic}"
     const val RESULT = "result/{exam}/{subject}/{topic}"
     const val NOTES = "notes"
+    const val ABOUT = "about"
+    const val PRIVACY_POLICY = "privacy_policy"
 
     fun subject(exam: String) = "subject/${Uri.encode(exam)}"
     fun topic(exam: String, subject: String) = "topic/${Uri.encode(exam)}/${Uri.encode(subject)}"

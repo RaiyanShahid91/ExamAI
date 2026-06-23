@@ -12,7 +12,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.ai.studyassistant.ui.screens.AboutScreen
 import com.ai.studyassistant.ui.screens.HomeScreen
+import com.ai.studyassistant.ui.screens.PrivacyPolicyScreen
 import com.ai.studyassistant.ui.screens.QuizScreen
 import com.ai.studyassistant.ui.screens.ResultScreen
 import com.ai.studyassistant.ui.screens.StudyNotesScreen
@@ -49,7 +51,8 @@ fun NavGraph(
             HomeScreen(
                 quizViewModel = viewModel,
                 onExamSelected = { exam -> navController.navigate(Routes.subject(exam)) },
-                onNotesClick = { navController.navigate(Routes.NOTES) }
+                onNotesClick = { navController.navigate(Routes.NOTES) },
+                onAboutClick = { navController.navigate(Routes.ABOUT) }
             )
         }
 
@@ -59,6 +62,14 @@ fun NavGraph(
                 viewModel = notesViewModel,
                 onBack = { navController.popBackStack() }
             )
+        }
+
+        composable(Routes.ABOUT) {
+            AboutScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(Routes.PRIVACY_POLICY) {
+            PrivacyPolicyScreen(onBack = { navController.popBackStack() })
         }
 
         composable(

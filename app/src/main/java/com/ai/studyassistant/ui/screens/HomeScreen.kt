@@ -16,9 +16,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -53,13 +55,15 @@ import com.ai.studyassistant.viewmodel.QuizViewModel
 fun HomeScreen(
     quizViewModel: QuizViewModel,
     onExamSelected: (String) -> Unit,
-    onNotesClick: () -> Unit
+    onNotesClick: () -> Unit,
+    onAboutClick: () -> Unit
 ) {
     val dailyQuestion by quizViewModel.dailyQuestion.collectAsState()
     HomeScreenContent(
         dailyQuestion = dailyQuestion,
         onExamSelected = onExamSelected,
-        onNotesClick = onNotesClick
+        onNotesClick = onNotesClick,
+        onAboutClick = onAboutClick
     )
 }
 
@@ -67,7 +71,8 @@ fun HomeScreen(
 private fun HomeScreenContent(
     dailyQuestion: Question?,
     onExamSelected: (String) -> Unit,
-    onNotesClick: () -> Unit
+    onNotesClick: () -> Unit,
+    onAboutClick: () -> Unit
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
 
@@ -110,8 +115,17 @@ private fun HomeScreenContent(
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White,
-                            modifier = Modifier.padding(start = 8.dp)
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .weight(1f)
                         )
+                        IconButton(onClick = onAboutClick) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "About",
+                                tint = Color.White
+                            )
+                        }
                     }
                     Text(
                         text = "Smart Study Assistant for JEE, NEET & UPSC",
@@ -267,7 +281,12 @@ private val sampleDailyQuestion = Question(
 @Composable
 private fun HomeScreenPreview() {
     AIStudyAssistantTheme {
-        HomeScreenContent(dailyQuestion = sampleDailyQuestion, onExamSelected = {}, onNotesClick = {})
+        HomeScreenContent(
+            dailyQuestion = sampleDailyQuestion,
+            onExamSelected = {},
+            onNotesClick = {},
+            onAboutClick = {}
+        )
     }
 }
 
