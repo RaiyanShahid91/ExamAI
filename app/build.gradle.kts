@@ -7,21 +7,22 @@ plugins {
 
 android {
     namespace = "com.ai.studyassistant"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.ai.studyassistant"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 3
-        versionName = "1.0.2"
+        targetSdk = 36
+        versionCode = 5
+        versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

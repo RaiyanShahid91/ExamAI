@@ -19,3 +19,17 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
+
+# Gson uses reflection to (de)serialize these DTOs; keep field names intact.
+-keep class com.ai.studyassistant.data.api.** { *; }
+-keepclassmembers,allowobfuscation class com.ai.studyassistant.data.api.** {
+    <fields>;
+}
+
+# Gson generic signatures / TypeToken support
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.google.gson.reflect.TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken
