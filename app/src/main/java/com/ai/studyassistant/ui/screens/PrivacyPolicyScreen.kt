@@ -56,8 +56,10 @@ private val policySections = listOf(
                 "❌ Login credentials or passwords\n" +
                 "❌ Browsing history\n" +
                 "❌ Any personally identifiable information (PII)\n\n" +
-                "The only exception is the advertising ID, used by Google AdMob to serve ads — " +
-                "see \"Advertising\" below for details."
+                "The only exceptions are the advertising ID (used by Google AdMob — see " +
+                "\"Advertising\") and an anonymous Firebase installation identifier (used for " +
+                "crash reporting and app analytics — see \"Analytics & Crash Reporting\"). " +
+                "Neither is tied to your name or any other personal identity."
     ),
     PolicySection(
         title = "Information Stored Locally On Your Device",
@@ -110,11 +112,20 @@ private val policySections = listOf(
                 "manage ad personalization for your device in your Google Account settings."
     ),
     PolicySection(
-        title = "No Analytics or Tracking",
-        body = "We do not use any analytics tools such as Google Analytics / Firebase " +
-                "Analytics, Mixpanel, Amplitude, Crashlytics, or any other tracking SDK.\n\n" +
-                "Your in-app behavior, screen views, button clicks, and usage patterns are " +
-                "never tracked or reported to us."
+        title = "Analytics & Crash Reporting",
+        body = "ExamAI uses Google Firebase Analytics and Firebase Crashlytics to understand " +
+                "how the app is used and to catch crashes and errors so we can fix them.\n\n" +
+                "What this includes: screens viewed, in-app actions (e.g. which exam/subject/" +
+                "topic you practice, quiz completion and scores, bookmark and note actions), " +
+                "general device/app info (device model, OS version, app version, approximate " +
+                "country from IP), and crash/error reports with stack traces.\n\n" +
+                "What this does NOT include: your name, email address, phone number, or any " +
+                "other information that identifies you personally. Firebase assigns an " +
+                "anonymous installation identifier to your device, not your real identity.\n\n" +
+                "This data is processed by Google under Firebase's own privacy terms " +
+                "(firebase.google.com/support/privacy). We use it only to improve app " +
+                "stability and understand feature usage — never to build an advertising " +
+                "profile of you outside of the AdMob usage described above."
     ),
     PolicySection(
         title = "Children's Privacy",
@@ -182,7 +193,8 @@ private val policySections = listOf(
                 "✅ COPPA (Children's Online Privacy Protection Act) — US\n" +
                 "✅ IT Act 2000 & DPDP Act 2023 — India\n" +
                 "✅ Wikipedia Terms of Use\n" +
-                "✅ Open Trivia DB Terms of Use"
+                "✅ Open Trivia DB Terms of Use\n" +
+                "✅ Google Firebase Terms of Service"
     ),
     PolicySection(
         title = "Contact Us",

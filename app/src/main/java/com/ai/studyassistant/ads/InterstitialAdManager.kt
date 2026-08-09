@@ -2,6 +2,7 @@ package com.ai.studyassistant.ads
 
 import android.app.Activity
 import android.content.Context
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -30,11 +31,16 @@ object InterstitialAdManager {
                 override fun onAdLoaded(ad: InterstitialAd) {
                     interstitialAd = ad
                     isLoading = false
+                    AnalyticsManager.logEvent("interstitial_ad_loaded")
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     interstitialAd = null
                     isLoading = false
+                    AnalyticsManager.recordNonFatal(
+                        Exception("Interstitial load failed: ${error.code} ${error.message}"),
+                        context = "InterstitialAdManager.preload"
+                    )
                 }
             }
         )
@@ -54,9 +60,14 @@ object InterstitialAdManager {
 
             override fun onAdFailedToShowFullScreenContent(error: AdError) {
                 interstitialAd = null
+                AnalyticsManager.recordNonFatal(
+                    Exception("Interstitial show failed: ${error.code} ${error.message}"),
+                    context = "InterstitialAdManager.showIfAvailable"
+                )
                 onDismissed()
             }
         }
+        AnalyticsManager.logEvent("interstitial_ad_shown")
         ad.show(activity)
     }
 }

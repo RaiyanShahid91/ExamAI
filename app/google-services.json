@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "26996096663",
+    "project_id": "examai-40eb0",
+    "storage_bucket": "examai-40eb0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:26996096663:android:c663266e9cbe65f0bcf3d2",
+        "android_client_info": {
+          "package_name": "com.ai.studyassistant"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATN7KXLmwEAbQieV1mCvN9KmQizjJwmdg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

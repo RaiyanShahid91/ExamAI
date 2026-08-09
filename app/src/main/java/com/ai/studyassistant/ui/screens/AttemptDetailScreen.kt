@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.model.ExamAttemptSummary
 import com.ai.studyassistant.data.model.Question
 import com.ai.studyassistant.ui.components.BackTopBar
@@ -68,6 +69,10 @@ fun AttemptDetailScreen(
                     actions = {
                         if (detail != null) {
                             IconButton(onClick = {
+                                AnalyticsManager.logEvent(
+                                    "report_shared",
+                                    mapOf("exam" to detail!!.exam, "subject" to detail!!.subject, "topic" to detail!!.topic)
+                                )
                                 val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                     type = "text/plain"
                                     putExtra(Intent.EXTRA_TEXT, buildReportText(detail!!))

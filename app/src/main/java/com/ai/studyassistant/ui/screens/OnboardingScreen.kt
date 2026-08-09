@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.local.FirstRunPreferences
 import com.ai.studyassistant.ui.components.GradientBackground
 import com.ai.studyassistant.ui.components.bounceClick
@@ -89,7 +90,11 @@ fun OnboardingScreen(onFinish: () -> Unit) {
     val context = LocalContext.current
     val firstRunPreferences = remember { FirstRunPreferences(context) }
 
-    fun finish() {
+    fun finish(via: String) {
+        AnalyticsManager.logEvent(
+            "onboarding_completed",
+            mapOf("via" to via, "last_page" to pagerState.currentPage)
+        )
         scope.launch { firstRunPreferences.setSeenOnboarding() }
         onFinish()
     }
@@ -107,7 +112,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 horizontalArrangement = Arrangement.End
             ) {
                 if (pagerState.currentPage < onboardingPages.lastIndex) {
-                    TextButton(onClick = { finish() }) {
+                    TextButton(onClick = { finish(via = "skip") }) {
                         Text("Skip", color = Color.White)
                     }
                 }
@@ -145,9 +150,13 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             Button(
                 onClick = {
                     if (pagerState.currentPage < onboardingPages.lastIndex) {
+                        AnalyticsManager.logEvent(
+                            "onboarding_next_clicked",
+                            mapOf("page" to pagerState.currentPage)
+                        )
                         scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
                     } else {
-                        finish()
+                        finish(via = "get_started")
                     }
                 },
                 colors = ButtonDefaults.buttonColors(

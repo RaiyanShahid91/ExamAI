@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ai.studyassistant.ads.InterstitialAdManager
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.local.FirstRunPreferences
 import com.ai.studyassistant.ui.components.AnimatedCounter
 import com.ai.studyassistant.ui.components.GradientBackground
@@ -86,6 +87,7 @@ fun ResultScreen(
         total = total,
         fromHistory = fromHistory,
         onShare = {
+            AnalyticsManager.logEvent("score_shared", mapOf("score" to score, "total" to total))
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(

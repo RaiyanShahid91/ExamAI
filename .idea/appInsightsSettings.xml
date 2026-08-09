@@ -36,10 +36,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.ai.studyassistant" />
+                  <option name="mobileSdkAppId" value="1:26996096663:android:c663266e9cbe65f0bcf3d2" />
+                  <option name="projectId" value="examai-40eb0" />
+                  <option name="projectNumber" value="26996096663" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

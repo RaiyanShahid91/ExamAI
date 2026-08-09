@@ -39,8 +39,11 @@ ExamAI itself does **not** collect any of the following:
 - ❌ Browsing history
 - ❌ Any personally identifiable information (PII)
 
-The one exception is the advertising ID, used by Google AdMob to 
-serve ads — see **Section 6, Advertising** below.
+The exceptions are the advertising ID (used by Google AdMob — see 
+**Section 6, Advertising**) and an anonymous Firebase installation 
+identifier (used for crash reporting and app analytics — see 
+**Section 7, Analytics & Crash Reporting**). Neither is tied to your 
+name or any other personal identity.
 
 ---
 
@@ -121,19 +124,31 @@ device in your Google Account settings.
 
 ---
 
-## 7. No Analytics or Tracking
+## 7. Analytics & Crash Reporting
 
-We do **not** use any analytics tools such as:
-- Google Analytics / Firebase Analytics
-- Mixpanel
-- Amplitude
-- Crashlytics
-- Any other tracking SDK
+ExamAI uses **Google Firebase Analytics** and **Firebase Crashlytics** 
+to understand how the app is used and to catch crashes and errors so 
+we can fix them.
 
-Your in-app behavior, screen views, button clicks, and 
-usage patterns are never tracked or reported to us. (Google AdMob's 
-own ad-measurement data, described in Section 6, is separate from 
-this and is processed by Google, not us.)
+**What this includes:**
+- Screens viewed and in-app actions (e.g. which exam/subject/topic you 
+  practice, quiz completion and scores, bookmark and note actions)
+- General device/app info (device model, OS version, app version, 
+  approximate country from IP)
+- Crash and error reports with stack traces
+
+**What this does NOT include:** your name, email address, phone 
+number, or any other information that identifies you personally. 
+Firebase assigns an anonymous installation identifier to your device, 
+not your real identity.
+
+This data is processed by Google under Firebase's own privacy terms: 
+https://firebase.google.com/support/privacy
+
+We use it only to improve app stability and understand feature usage — 
+never to build an advertising profile of you outside of the AdMob 
+usage described in Section 6. (Google AdMob's own ad-measurement 
+data is separate from this and is also processed by Google.)
 
 ---
 
@@ -241,6 +256,7 @@ This app and privacy policy comply with:
 - ✅ Wikipedia Terms of Use
 - ✅ Open Trivia DB Terms of Use
 - ✅ Google AdMob Program Policies
+- ✅ Google Firebase Terms of Service
 
 ---
 

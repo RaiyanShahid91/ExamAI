@@ -2,6 +2,7 @@ package com.ai.studyassistant.ads
 
 import android.app.Activity
 import android.content.Context
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.ump.ConsentRequestParameters
@@ -33,8 +34,12 @@ object ConsentManager {
                     initializeAdsIfNeeded(activity)
                 }
             },
-            {
+            { formError ->
                 // Consent info update failed — proceed anyway; ads can still load non-personalized.
+                AnalyticsManager.recordNonFatal(
+                    Exception("Consent info update failed: ${formError.errorCode} ${formError.message}"),
+                    context = "ConsentManager.requestConsentAndInitialize"
+                )
                 initializeAdsIfNeeded(activity)
             }
         )

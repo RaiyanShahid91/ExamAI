@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.notification.DailyReminderWorker
 import com.ai.studyassistant.notification.ReminderPreferences
 import com.ai.studyassistant.ui.components.BackTopBar
@@ -75,6 +76,7 @@ fun SettingsScreen(
     SettingsContent(
         reminderEnabled = reminderEnabled,
         onReminderToggle = { enabled ->
+            AnalyticsManager.logEvent("reminder_toggled", mapOf("enabled" to enabled))
             if (!enabled) {
                 scope.launch { reminderPreferences.setEnabled(false) }
                 DailyReminderWorker.cancel(context)

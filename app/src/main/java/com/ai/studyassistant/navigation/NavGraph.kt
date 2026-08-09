@@ -8,12 +8,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.ui.screens.AboutScreen
 import com.ai.studyassistant.ui.screens.AiInfoScreen
 import com.ai.studyassistant.ui.screens.AttemptDetailScreen
@@ -42,6 +45,18 @@ fun NavGraph(
     viewModel: QuizViewModel,
     startDestination: String = Routes.HOME
 ) {
+    // One listener covers every screen in the app — logs a screen_view on every
+    // navigation instead of hand-wiring analytics into each composable.
+    DisposableEffect(navController) {
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+            val route = destination.route ?: return@OnDestinationChangedListener
+            val screenName = route.substringBefore("/").substringBefore("?")
+            AnalyticsManager.logScreenView(screenName = screenName, screenClass = route)
+        }
+        navController.addOnDestinationChangedListener(listener)
+        onDispose { navController.removeOnDestinationChangedListener(listener) }
+    }
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -66,12 +81,31 @@ fun NavGraph(
         composable(Routes.HOME) {
             HomeScreen(
                 quizViewModel = viewModel,
-                onExamSelected = { exam -> navController.navigate(Routes.subject(exam)) },
-                onNotesClick = { navController.navigate(Routes.NOTES) },
-                onSettingsClick = { navController.navigate(Routes.SETTINGS) },
-                onHistoryClick = { navController.navigate(Routes.HISTORY) },
-                onBookmarksClick = { navController.navigate(Routes.BOOKMARKS) },
+                onExamSelected = { exam ->
+                    AnalyticsManager.logEvent("exam_selected", mapOf("exam" to exam))
+                    navController.navigate(Routes.subject(exam))
+                },
+                onNotesClick = {
+                    AnalyticsManager.logEvent("bottom_nav_clicked", mapOf("tab" to "notes"))
+                    navController.navigate(Routes.NOTES)
+                },
+                onSettingsClick = {
+                    AnalyticsManager.logEvent("bottom_nav_clicked", mapOf("tab" to "settings"))
+                    navController.navigate(Routes.SETTINGS)
+                },
+                onHistoryClick = {
+                    AnalyticsManager.logEvent("bottom_nav_clicked", mapOf("tab" to "history"))
+                    navController.navigate(Routes.HISTORY)
+                },
+                onBookmarksClick = {
+                    AnalyticsManager.logEvent("bottom_nav_clicked", mapOf("tab" to "bookmarks"))
+                    navController.navigate(Routes.BOOKMARKS)
+                },
                 onPracticeTopic = { exam, subject, topic ->
+                    AnalyticsManager.logEvent(
+                        "weak_topic_practice_started",
+                        mapOf("exam" to exam, "subject" to subject, "topic" to topic)
+                    )
                     navController.navigate(Routes.quiz(exam, subject, topic))
                 }
             )
@@ -89,27 +123,51 @@ fun NavGraph(
 
         composable(Routes.SETTINGS) {
             SettingsScreen(
-                onBack = { navController.popBackStack() },
-                onAboutClick = { navController.navigate(Routes.ABOUT) },
-                onTermsClick = { navController.navigate(Routes.TERMS) },
-                onPrivacyClick = { navController.navigate(Routes.PRIVACY_POLICY) },
-                onAiInfoClick = { navController.navigate(Routes.AI_INFO) }
+                onBack = {
+                    AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "settings"))
+                    navController.popBackStack()
+                },
+                onAboutClick = {
+                    AnalyticsManager.logEvent("settings_row_clicked", mapOf("row" to "about"))
+                    navController.navigate(Routes.ABOUT)
+                },
+                onTermsClick = {
+                    AnalyticsManager.logEvent("settings_row_clicked", mapOf("row" to "terms"))
+                    navController.navigate(Routes.TERMS)
+                },
+                onPrivacyClick = {
+                    AnalyticsManager.logEvent("settings_row_clicked", mapOf("row" to "privacy"))
+                    navController.navigate(Routes.PRIVACY_POLICY)
+                },
+                onAiInfoClick = {
+                    AnalyticsManager.logEvent("settings_row_clicked", mapOf("row" to "ai_info"))
+                    navController.navigate(Routes.AI_INFO)
+                }
             )
         }
 
         composable(Routes.TERMS) {
-            TermsAndConditionsScreen(onBack = { navController.popBackStack() })
+            TermsAndConditionsScreen(onBack = {
+                AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "terms"))
+                navController.popBackStack()
+            })
         }
 
         composable(Routes.AI_INFO) {
-            AiInfoScreen(onBack = { navController.popBackStack() })
+            AiInfoScreen(onBack = {
+                AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "ai_info"))
+                navController.popBackStack()
+            })
         }
 
         composable(Routes.BOOKMARKS) {
             val bookmarksViewModel: BookmarksViewModel = viewModel()
             BookmarksScreen(
                 viewModel = bookmarksViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = {
+                    AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "bookmarks"))
+                    navController.popBackStack()
+                }
             )
         }
 
@@ -117,9 +175,18 @@ fun NavGraph(
             val historyViewModel: HistoryViewModel = viewModel()
             HistoryScreen(
                 viewModel = historyViewModel,
-                onBack = { navController.popBackStack() },
-                onResume = { attemptId -> navController.navigate(Routes.quizResume(attemptId)) },
-                onOpenDetail = { attemptId -> navController.navigate(Routes.attemptDetail(attemptId)) }
+                onBack = {
+                    AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "history"))
+                    navController.popBackStack()
+                },
+                onResume = { attemptId ->
+                    AnalyticsManager.logEvent("attempt_resumed", mapOf("attempt_id" to attemptId))
+                    navController.navigate(Routes.quizResume(attemptId))
+                },
+                onOpenDetail = { attemptId ->
+                    AnalyticsManager.logEvent("attempt_detail_opened", mapOf("attempt_id" to attemptId))
+                    navController.navigate(Routes.attemptDetail(attemptId))
+                }
             )
         }
 
@@ -132,7 +199,10 @@ fun NavGraph(
             AttemptDetailScreen(
                 attemptId = attemptId,
                 viewModel = historyViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = {
+                    AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "attempt_detail"))
+                    navController.popBackStack()
+                }
             )
         }
 
@@ -144,9 +214,19 @@ fun NavGraph(
             QuizScreen(
                 attemptId = attemptId,
                 viewModel = viewModel,
-                onBack = { navController.popBackStack() },
+                onBack = {
+                    AnalyticsManager.logEvent("quiz_abandoned", mapOf("resumed" to true))
+                    navController.popBackStack()
+                },
                 onFinished = {
                     val state = viewModel.uiState.value
+                    AnalyticsManager.logEvent(
+                        "quiz_finished",
+                        mapOf(
+                            "exam" to state.exam, "subject" to state.subject, "topic" to state.topic,
+                            "score" to state.score, "total" to state.questions.size, "resumed" to true
+                        )
+                    )
                     navController.navigate(
                         Routes.result(state.exam, state.subject, state.topic, fromHistory = true)
                     ) {
@@ -160,16 +240,25 @@ fun NavGraph(
             val notesViewModel: NotesViewModel = viewModel()
             StudyNotesScreen(
                 viewModel = notesViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = {
+                    AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "notes"))
+                    navController.popBackStack()
+                }
             )
         }
 
         composable(Routes.ABOUT) {
-            AboutScreen(onBack = { navController.popBackStack() })
+            AboutScreen(onBack = {
+                AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "about"))
+                navController.popBackStack()
+            })
         }
 
         composable(Routes.PRIVACY_POLICY) {
-            PrivacyPolicyScreen(onBack = { navController.popBackStack() })
+            PrivacyPolicyScreen(onBack = {
+                AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "privacy_policy"))
+                navController.popBackStack()
+            })
         }
 
         composable(
@@ -179,9 +268,18 @@ fun NavGraph(
             val exam = backStackEntry.arguments?.getString("exam").orEmpty()
             SubjectScreen(
                 exam = exam,
-                onBack = { navController.popBackStack() },
-                onSubjectSelected = { subject -> navController.navigate(Routes.topic(exam, subject)) },
-                onMockExam = { navController.navigate(Routes.mockQuiz(exam)) }
+                onBack = {
+                    AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "subject"))
+                    navController.popBackStack()
+                },
+                onSubjectSelected = { subject ->
+                    AnalyticsManager.logEvent("subject_selected", mapOf("exam" to exam, "subject" to subject))
+                    navController.navigate(Routes.topic(exam, subject))
+                },
+                onMockExam = {
+                    AnalyticsManager.logEvent("mock_exam_started", mapOf("exam" to exam))
+                    navController.navigate(Routes.mockQuiz(exam))
+                }
             )
         }
 
@@ -198,9 +296,19 @@ fun NavGraph(
                 mockExam = exam,
                 timed = timed,
                 viewModel = viewModel,
-                onBack = { navController.popBackStack() },
+                onBack = {
+                    AnalyticsManager.logEvent("quiz_abandoned", mapOf("exam" to exam, "mock_exam" to true))
+                    navController.popBackStack()
+                },
                 onFinished = {
                     val state = viewModel.uiState.value
+                    AnalyticsManager.logEvent(
+                        "quiz_finished",
+                        mapOf(
+                            "exam" to state.exam, "subject" to state.subject, "topic" to state.topic,
+                            "score" to state.score, "total" to state.questions.size, "mock_exam" to true
+                        )
+                    )
                     navController.navigate(Routes.result(state.exam, state.subject, state.topic)) {
                         popUpTo(Routes.MOCK_QUIZ) { inclusive = true }
                     }
@@ -220,8 +328,21 @@ fun NavGraph(
             TopicScreen(
                 exam = exam,
                 subject = subject,
-                onBack = { navController.popBackStack() },
+                onBack = {
+                    AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "topic"))
+                    navController.popBackStack()
+                },
                 onTopicSelected = { topic, difficulty, timed ->
+                    AnalyticsManager.logEvent(
+                        "topic_selected",
+                        mapOf(
+                            "exam" to exam,
+                            "subject" to subject,
+                            "topic" to topic,
+                            "difficulty" to (difficulty ?: "any"),
+                            "timed" to timed
+                        )
+                    )
                     navController.navigate(Routes.quiz(exam, subject, topic, difficulty, timed)) {
                         popUpTo(Routes.QUIZ) { inclusive = true }
                     }
@@ -251,8 +372,24 @@ fun NavGraph(
                 difficulty = difficulty,
                 timed = timed,
                 viewModel = viewModel,
-                onBack = { navController.popBackStack() },
-                onFinished = { navController.navigate(Routes.result(exam, subject, topic)) }
+                onBack = {
+                    AnalyticsManager.logEvent(
+                        "quiz_abandoned",
+                        mapOf("exam" to exam, "subject" to subject, "topic" to topic)
+                    )
+                    navController.popBackStack()
+                },
+                onFinished = {
+                    val state = viewModel.uiState.value
+                    AnalyticsManager.logEvent(
+                        "quiz_finished",
+                        mapOf(
+                            "exam" to exam, "subject" to subject, "topic" to topic,
+                            "score" to state.score, "total" to state.questions.size
+                        )
+                    )
+                    navController.navigate(Routes.result(exam, subject, topic))
+                }
             )
         }
 
@@ -274,6 +411,7 @@ fun NavGraph(
                 viewModel = viewModel,
                 fromHistory = fromHistory || isMockExam,
                 onTryAgain = {
+                    AnalyticsManager.logEvent("result_try_again", mapOf("exam" to exam, "subject" to subject, "topic" to topic))
                     if (isMockExam) {
                         navController.navigate(Routes.mockQuiz(exam)) {
                             popUpTo(Routes.RESULT) { inclusive = true }
@@ -285,9 +423,11 @@ fun NavGraph(
                     }
                 },
                 onNewTopic = {
+                    AnalyticsManager.logEvent("result_new_topic", mapOf("exam" to exam, "subject" to subject))
                     navController.popBackStack(Routes.TOPIC, inclusive = false)
                 },
                 onBack = {
+                    AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "result"))
                     if (isMockExam) {
                         navController.popBackStack(Routes.SUBJECT, inclusive = false)
                     } else {

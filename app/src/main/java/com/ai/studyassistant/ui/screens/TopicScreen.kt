@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.model.ExamData
 import com.ai.studyassistant.ui.components.BackTopBar
 import com.ai.studyassistant.ui.components.StaggeredEntrance
@@ -59,13 +60,19 @@ fun TopicScreen(
             item {
                 DifficultyFilterRow(
                     selected = selectedDifficulty,
-                    onSelect = { selectedDifficulty = it }
+                    onSelect = {
+                        selectedDifficulty = it
+                        AnalyticsManager.logEvent("difficulty_filter_selected", mapOf("difficulty" to it))
+                    }
                 )
             }
             item {
                 TimedModeToggle(
                     checked = timedMode,
-                    onCheckedChange = { timedMode = it }
+                    onCheckedChange = {
+                        timedMode = it
+                        AnalyticsManager.logEvent("timed_mode_toggled", mapOf("enabled" to it))
+                    }
                 )
             }
             itemsIndexed(topics) { index, topic ->

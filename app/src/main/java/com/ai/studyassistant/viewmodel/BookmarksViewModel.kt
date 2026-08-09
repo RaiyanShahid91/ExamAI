@@ -3,6 +3,7 @@ package com.ai.studyassistant.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.local.BookmarkedQuestionEntity
 import com.ai.studyassistant.data.model.Question
 import com.ai.studyassistant.data.repository.BookmarkRepository
@@ -26,6 +27,10 @@ class BookmarksViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun removeBookmark(bookmark: BookmarkedQuestionEntity) {
+        AnalyticsManager.logEvent(
+            "bookmark_removed",
+            mapOf("exam" to bookmark.exam, "subject" to bookmark.subject, "topic" to bookmark.topic)
+        )
         viewModelScope.launch {
             repository.toggleBookmark(
                 bookmark.exam,

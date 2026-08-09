@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.local.FirstRunPreferences
 import com.ai.studyassistant.data.model.Exam
 import com.ai.studyassistant.data.model.ExamData
@@ -96,6 +97,7 @@ fun HomeScreen(
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
+        AnalyticsManager.logEvent("notification_permission_result", mapOf("granted" to granted))
         if (granted) {
             scope.launch { reminderPreferences.setEnabled(true) }
             DailyReminderWorker.schedule(context)
@@ -157,7 +159,10 @@ private fun HomeScreenContent(
                 NavigationBar {
                     NavigationBarItem(
                         selected = selectedTab == 0,
-                        onClick = { selectedTab = 0 },
+                        onClick = {
+                            selectedTab = 0
+                            AnalyticsManager.logEvent("bottom_nav_clicked", mapOf("tab" to "home"))
+                        },
                         icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
                         label = { Text("Home") }
                     )
@@ -306,7 +311,10 @@ private fun DailyQuestionCard(question: Question) {
     Surface(
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surface,
-        onClick = { revealed = !revealed },
+        onClick = {
+            revealed = !revealed
+            if (revealed) AnalyticsManager.logEvent("daily_question_revealed")
+        },
         modifier = Modifier
             .fillMaxWidth()
             .bounceClick()

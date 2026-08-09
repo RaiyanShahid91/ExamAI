@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.model.Question
 import com.ai.studyassistant.ui.components.BackTopBar
 import com.ai.studyassistant.ui.components.BannerAdView
@@ -109,6 +110,7 @@ fun QuizScreen(
                 uiState.error != null -> QuizError(
                     message = uiState.error.orEmpty(),
                     onRetry = {
+                        AnalyticsManager.logEvent("quiz_retry_clicked", mapOf("exam" to exam, "subject" to subject, "topic" to topic))
                         when {
                             attemptId != null -> viewModel.resumeAttempt(attemptId)
                             mockExam != null -> viewModel.loadMockExam(mockExam, timed)

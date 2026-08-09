@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ai.studyassistant.ads.InterstitialAdManager
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.api.WikipediaService
 import com.ai.studyassistant.data.local.ConnectivityObserver
 import com.ai.studyassistant.data.local.NetworkUtils
@@ -111,8 +112,14 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                     if (timed && durationSeconds != null) {
                         startCountdown(durationSeconds)
                     }
+                    AnalyticsManager.logEvent(
+                        "quiz_started",
+                        mapOf("exam" to exam, "subject" to subject, "topic" to topic, "question_count" to questions.size, "timed" to timed)
+                    )
                 }
                 .onFailure { e ->
+                    AnalyticsManager.recordNonFatal(e, context = "loadQuestions($exam,$subject,$topic)")
+                    AnalyticsManager.logEvent("quiz_load_failed", mapOf("exam" to exam, "subject" to subject, "topic" to topic))
                     _uiState.value = QuizUiState(
                         exam = exam,
                         subject = subject,
@@ -150,8 +157,14 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                     if (timed && durationSeconds != null) {
                         startCountdown(durationSeconds)
                     }
+                    AnalyticsManager.logEvent(
+                        "quiz_started",
+                        mapOf("exam" to exam, "mock_exam" to true, "question_count" to questions.size, "timed" to timed)
+                    )
                 }
                 .onFailure { e ->
+                    AnalyticsManager.recordNonFatal(e, context = "loadMockExam($exam)")
+                    AnalyticsManager.logEvent("quiz_load_failed", mapOf("exam" to exam, "mock_exam" to true))
                     _uiState.value = QuizUiState(
                         exam = exam,
                         subject = subject,
@@ -168,6 +181,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val attempt = historyRepository.getAttempt(attemptId)
             if (attempt == null) {
+                AnalyticsManager.recordNonFatal(
+                    IllegalStateException("Attempt $attemptId not found on resume"),
+                    context = "resumeAttempt"
+                )
                 _uiState.value = QuizUiState(error = "This attempt could not be found.")
                 return@launch
             }
@@ -188,6 +205,13 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 isTimed = attempt.isTimed
             )
             loadTopicSummary(attempt.topic)
+            AnalyticsManager.logEvent(
+                "quiz_resumed",
+                mapOf(
+                    "exam" to attempt.exam, "subject" to attempt.subject, "topic" to attempt.topic,
+                    "current_index" to attempt.currentIndex, "question_count" to attempt.questions.size
+                )
+            )
 
             if (attempt.isTimed) {
                 val elapsedSeconds = ((System.currentTimeMillis() - attempt.startTime) / 1000).toInt()
@@ -220,8 +244,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
             if (summary.isNotBlank()) {
                 _uiState.update { it.copy(topicSummary = summary) }
             }
-        } catch (_: Exception) {
-            // Optional supplementary content — silently skip if unavailable.
+        } catch (e: Exception) {
+            // Optional supplementary content — non-fatal to the quiz flow, but still worth
+            // seeing in Crashlytics rather than vanishing silently.
+            AnalyticsManager.recordNonFatal(e, context = "loadTopicSummary($topic)")
         }
     }
 
@@ -237,6 +263,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 score = if (isCorrect) it.score + 1 else it.score
             )
         }
+        AnalyticsManager.logEvent(
+            "answer_selected",
+            mapOf("exam" to state.exam, "subject" to state.subject, "topic" to state.topic, "correct" to isCorrect)
+        )
         val attemptId = state.attemptId ?: return
         viewModelScope.launch {
             historyRepository.recordAnswer(attemptId, state.currentIndex, index)
@@ -244,7 +274,12 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun nextQuestion() {
-        val nextIndex = _uiState.value.currentIndex + 1
+        val state = _uiState.value
+        AnalyticsManager.logEvent(
+            "next_question_clicked",
+            mapOf("exam" to state.exam, "subject" to state.subject, "topic" to state.topic, "question_index" to state.currentIndex)
+        )
+        val nextIndex = state.currentIndex + 1
         _uiState.update {
             it.copy(
                 currentIndex = nextIndex,
@@ -261,6 +296,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
     fun toggleBookmark() {
         val state = _uiState.value
         val question = state.currentQuestion ?: return
+        AnalyticsManager.logEvent("bookmark_toggled", mapOf("exam" to state.exam, "subject" to state.subject, "topic" to state.topic))
         viewModelScope.launch {
             bookmarkRepository.toggleBookmark(state.exam, state.subject, state.topic, question)
         }

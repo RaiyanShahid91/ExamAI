@@ -3,6 +3,7 @@ package com.ai.studyassistant.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.model.StudyNote
 import com.ai.studyassistant.data.repository.NotesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,11 +35,13 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun fetchNote(topic: String) {
+        AnalyticsManager.logEvent("note_searched", mapOf("topic" to topic))
         _uiState.update { it.copy(isLoading = true, error = null, note = null) }
         viewModelScope.launch {
             repository.fetchSummary(topic)
                 .onSuccess { note -> _uiState.update { it.copy(isLoading = false, note = note) } }
                 .onFailure { e ->
+                    AnalyticsManager.recordNonFatal(e, context = "fetchNote($topic)")
                     _uiState.update {
                         it.copy(isLoading = false, error = e.message ?: "Couldn't fetch notes for $topic.")
                     }
@@ -48,6 +51,8 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleSave() {
         val note = _uiState.value.note ?: return
+        val willBeSaved = !note.isSaved
+        AnalyticsManager.logEvent(if (willBeSaved) "note_saved" else "note_unsaved", mapOf("topic" to note.topic))
         viewModelScope.launch {
             if (note.isSaved) repository.deleteNote(note) else repository.saveNote(note)
             _uiState.update { it.copy(note = note.copy(isSaved = !note.isSaved)) }
