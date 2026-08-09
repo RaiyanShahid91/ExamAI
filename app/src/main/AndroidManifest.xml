@@ -27,15 +27,10 @@
             </intent-filter>
         </activity>
 
-        <!--
-          TEST AdMob App ID (Google's official public sample ID for development).
-          Replace with your own AdMob App ID from admob.google.com before publishing —
-          shipping this test ID to production will get ad requests rejected / the app
-          flagged for invalid traffic.
-        -->
+        <!-- Real AdMob App ID for ExamAI (admob.google.com). -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-6654896157338132~5721449122" />
     </application>
 
 </manifest>

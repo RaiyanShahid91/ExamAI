@@ -6,6 +6,6 @@ package com.ai.studyassistant.ads
  * unit IDs from your AdMob console (admob.google.com) before publishing to Google Play.
  */
 object AdIds {
-    const val BANNER = "ca-app-pub-3940256099942544/9214589741"
-    const val INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712"
+    const val BANNER = "ca-app-pub-6654896157338132/7958544314"
+    const val INTERSTITIAL = "ca-app-pub-6654896157338132/3591657969"
 }
