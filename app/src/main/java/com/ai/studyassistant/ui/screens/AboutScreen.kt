@@ -16,20 +16,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.School
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ai.studyassistant.ui.components.BackTopBar
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
-import com.ai.studyassistant.ui.theme.DeepPurple
+import com.ai.studyassistant.ui.theme.BrandNavy
 
 private const val UPSC_URL = "https://upsc.gov.in"
 
@@ -56,14 +49,11 @@ fun AboutScreen(onBack: () -> Unit) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AboutScreenContent(
     onBack: () -> Unit,
     onUpscWebsiteClick: () -> Unit
 ) {
-    var showPrivacyPolicy by remember { mutableStateOf(false) }
-
     Scaffold(
         topBar = { BackTopBar(title = "About", onBack = onBack) }
     ) { padding ->
@@ -79,24 +69,6 @@ private fun AboutScreenContent(
             DisclaimerCardAbout()
             OfficialSourcesCard()
             FeaturesCard()
-            Button(
-                onClick = { showPrivacyPolicy = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Privacy Policy")
-            }
-            /*OutlinedButton(
-                onClick = onUpscWebsiteClick,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Official UPSC Website")
-            }*/
-        }
-    }
-
-    if (showPrivacyPolicy) {
-        ModalBottomSheet(onDismissRequest = { showPrivacyPolicy = false }) {
-            PrivacyPolicyBody()
         }
     }
 }
@@ -109,13 +81,13 @@ private fun AppInfoSection() {
     ) {
         Surface(
             shape = CircleShape,
-            color = DeepPurple.copy(alpha = 0.12f),
+            color = BrandNavy.copy(alpha = 0.12f),
             modifier = Modifier.size(72.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.School,
                 contentDescription = null,
-                tint = DeepPurple,
+                tint = BrandNavy,
                 modifier = Modifier.padding(16.dp)
             )
         }
@@ -205,13 +177,12 @@ private fun FeaturesCard() {
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "✅ 200+ MCQ questions for JEE, NEET & UPSC\n" +
-                        "✅ Live questions from Open Trivia DB\n" +
+                text = "✅ MCQ practice for JEE, NEET, UPSC, SSC, Banking, CAT & CDS/NDA\n" +
+                        "✅ AI-curated questions blended with live public sources\n" +
                         "✅ Study notes from Wikipedia\n" +
                         "✅ Works offline after first use\n" +
                         "✅ 100% Free forever\n" +
-                        "✅ No login required\n" +
-                        "✅ No ads",
+                        "✅ No login required",
                 style = MaterialTheme.typography.bodyMedium,
                 lineHeight = 22.sp,
                 modifier = Modifier.padding(top = 10.dp)

@@ -228,5 +228,125 @@
     {"question": "Which of the following best defines 'Disinvestment'?", "options": ["Government investing more in PSUs", "Government selling its stake in PSUs", "RBI buying government bonds", "Private firms investing in government bonds"], "correct": 1, "explanation": "Disinvestment refers to the government selling or liquidating its stake in public sector undertakings."},
     {"question": "The Mahatma Gandhi National Rural Employment Guarantee Act (MGNREGA) guarantees how many days of employment per year?", "options": ["50 days", "100 days", "150 days", "200 days"], "correct": 1, "explanation": "MGNREGA guarantees 100 days of wage employment per year to rural households."},
     {"question": "Which body regulates the securities market in India?", "options": ["RBI", "SEBI", "IRDAI", "NABARD"], "correct": 1, "explanation": "SEBI (Securities and Exchange Board of India) regulates the securities and capital markets."}
+  ],
+  "ssc_general_awareness": [
+    {"question": "Who is known as the 'Iron Man of India'?", "options": ["Jawaharlal Nehru", "Sardar Vallabhbhai Patel", "Subhas Chandra Bose", "Bhagat Singh"], "correct": 1, "explanation": "Sardar Vallabhbhai Patel is called the Iron Man of India for unifying princely states."},
+    {"question": "The Rajya Sabha is also known as the:", "options": ["House of the People", "Council of States", "Lower House", "State Assembly"], "correct": 1, "explanation": "Rajya Sabha is the Council of States, the upper house of Indian Parliament."},
+    {"question": "Which is the largest gland in the human body?", "options": ["Pancreas", "Liver", "Thyroid", "Pituitary"], "correct": 1, "explanation": "The liver is the largest gland in the human body."},
+    {"question": "The Battle of Plassey was fought in which year?", "options": ["1757", "1764", "1857", "1526"], "correct": 0, "explanation": "The Battle of Plassey was fought in 1757 between the British and Siraj-ud-Daulah."},
+    {"question": "Which is the smallest state in India by area?", "options": ["Sikkim", "Tripura", "Goa", "Nagaland"], "correct": 2, "explanation": "Goa is the smallest state in India by area."},
+    {"question": "The headquarters of the United Nations is located in:", "options": ["Geneva", "New York", "Paris", "London"], "correct": 1, "explanation": "The UN headquarters is in New York City, USA."},
+    {"question": "Who wrote the Indian National Anthem?", "options": ["Bankim Chandra Chatterjee", "Rabindranath Tagore", "Sarojini Naidu", "Muhammad Iqbal"], "correct": 1, "explanation": "Rabindranath Tagore wrote 'Jana Gana Mana', India's national anthem."},
+    {"question": "Which vitamin is produced when skin is exposed to sunlight?", "options": ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin K"], "correct": 2, "explanation": "Vitamin D is synthesized in the skin upon exposure to sunlight."}
+  ],
+  "ssc_quant": [
+    {"question": "What is 15% of 200?", "options": ["20", "30", "25", "35"], "correct": 1, "explanation": "15% of 200 = 0.15 x 200 = 30."},
+    {"question": "If the ratio of two numbers is 3:4 and their sum is 63, find the larger number.", "options": ["27", "36", "32", "30"], "correct": 1, "explanation": "3x+4x=63 -> x=9, larger number = 4x = 36."},
+    {"question": "A train travels 360 km in 4 hours. What is its speed?", "options": ["80 km/h", "90 km/h", "100 km/h", "60 km/h"], "correct": 1, "explanation": "Speed = distance/time = 360/4 = 90 km/h."},
+    {"question": "Find the simple interest on Rs. 1000 at 5% per annum for 2 years.", "options": ["Rs. 50", "Rs. 100", "Rs. 150", "Rs. 200"], "correct": 1, "explanation": "SI = PRT/100 = 1000x5x2/100 = Rs. 100."},
+    {"question": "What is the LCM of 4 and 6?", "options": ["10", "12", "24", "8"], "correct": 1, "explanation": "LCM of 4 and 6 is 12."},
+    {"question": "The average of 10, 20, and 30 is:", "options": ["15", "20", "25", "30"], "correct": 1, "explanation": "Average = (10+20+30)/3 = 20."},
+    {"question": "What is the square root of 144?", "options": ["10", "11", "12", "14"], "correct": 2, "explanation": "12 x 12 = 144."},
+    {"question": "If a shirt costs Rs. 500 after a 20% discount, what was the original price?", "options": ["Rs. 600", "Rs. 625", "Rs. 650", "Rs. 700"], "correct": 1, "explanation": "Original price = 500 / 0.8 = Rs. 625."}
+  ],
+  "ssc_reasoning": [
+    {"question": "Find the odd one out: Apple, Mango, Banana, Potato", "options": ["Apple", "Mango", "Banana", "Potato"], "correct": 3, "explanation": "Potato is a vegetable; the others are fruits."},
+    {"question": "If A=1, B=2, C=3..., what does the word 'CAB' represent numerically?", "options": ["3-1-2", "3-1-3", "2-1-3", "3-2-1"], "correct": 0, "explanation": "C=3, A=1, B=2, so CAB = 3-1-2."},
+    {"question": "Complete the series: 2, 4, 8, 16, ?", "options": ["24", "30", "32", "36"], "correct": 2, "explanation": "Each term doubles the previous: 16 x 2 = 32."},
+    {"question": "Pointing to a man, a woman said, 'His mother is the only daughter of my mother.' How is the woman related to the man?", "options": ["Mother", "Sister", "Aunt", "Grandmother"], "correct": 0, "explanation": "The only daughter of the woman's mother is the woman herself, so she is the man's mother."},
+    {"question": "Find the missing number: 5, 10, 20, 40, ?", "options": ["45", "60", "80", "50"], "correct": 2, "explanation": "Each term doubles: 40 x 2 = 80."},
+    {"question": "If 'CAT' is coded as 'DBU', how is 'DOG' coded?", "options": ["EPH", "EPI", "FQH", "EQH"], "correct": 0, "explanation": "Each letter is shifted forward by 1: D->E, O->P, G->H = EPH."},
+    {"question": "Which word does not belong: Circle, Square, Triangle, Sphere", "options": ["Circle", "Square", "Triangle", "Sphere"], "correct": 3, "explanation": "Sphere is a 3D shape; the others are 2D shapes."},
+    {"question": "A is taller than B, B is taller than C. Who is the shortest?", "options": ["A", "B", "C", "Cannot be determined"], "correct": 2, "explanation": "A > B > C in height, so C is the shortest."}
+  ],
+  "banking_quant": [
+    {"question": "A sum of Rs. 5000 amounts to Rs. 5500 in 2 years at simple interest. What is the rate of interest?", "options": ["5%", "10%", "15%", "20%"], "correct": 0, "explanation": "SI = 500, Rate = (500x100)/(5000x2) = 5%."},
+    {"question": "What is 25% of 25% of 800?", "options": ["40", "50", "60", "70"], "correct": 1, "explanation": "25% of 800 = 200, 25% of 200 = 50."},
+    {"question": "The compound interest on Rs. 2000 at 10% per annum for 2 years is:", "options": ["Rs. 400", "Rs. 420", "Rs. 440", "Rs. 460"], "correct": 1, "explanation": "CI = 2000(1.1)^2 - 2000 = 2420-2000 = Rs. 420."},
+    {"question": "Two numbers are in the ratio 5:7. If their sum is 84, find the smaller number.", "options": ["30", "35", "40", "45"], "correct": 1, "explanation": "5x+7x=84 -> x=7, smaller number = 5x = 35."},
+    {"question": "A shopkeeper marks up goods by 40% and gives a discount of 10%. What is his profit percentage?", "options": ["20%", "26%", "30%", "36%"], "correct": 1, "explanation": "Final price = 1.4 x 0.9 = 1.26, so profit is 26%."},
+    {"question": "What is the value of 12 x 12 - 44?", "options": ["100", "90", "80", "110"], "correct": 0, "explanation": "144 - 44 = 100."},
+    {"question": "If the perimeter of a square is 40 cm, what is its area?", "options": ["80 cm^2", "90 cm^2", "100 cm^2", "110 cm^2"], "correct": 2, "explanation": "Side = 40/4 = 10, area = 10x10 = 100 cm^2."},
+    {"question": "A can complete a work in 10 days, B in 20 days. Working together, how many days will they take?", "options": ["6.67 days", "7 days", "8 days", "5 days"], "correct": 0, "explanation": "Combined rate = 1/10+1/20 = 3/20, time = 20/3 = 6.67 days."}
+  ],
+  "banking_reasoning": [
+    {"question": "In a certain code, 'BANK' is written as 'CBOL'. How is 'LOAN' written?", "options": ["MPBO", "MPBP", "NPBO", "MQBO"], "correct": 0, "explanation": "Each letter is shifted forward by 1: L->M, O->P, A->B, N->O = MPBO."},
+    {"question": "Find the next term: 3, 9, 27, 81, ?", "options": ["162", "243", "324", "729"], "correct": 1, "explanation": "Each term is multiplied by 3: 81 x 3 = 243."},
+    {"question": "Five friends are sitting in a row. P is to the right of Q. Q is to the right of R. Who is in the middle if there are only these three?", "options": ["P", "Q", "R", "Cannot be determined"], "correct": 1, "explanation": "Order is R, Q, P from left to right, so Q is in the middle."},
+    {"question": "Which number will replace the question mark: 7, 14, 28, 56, ?", "options": ["84", "100", "112", "120"], "correct": 2, "explanation": "Each term doubles: 56 x 2 = 112."},
+    {"question": "If South-East becomes North, North-East becomes West, what does South become?", "options": ["North-East", "North-West", "South-West", "East"], "correct": 1, "explanation": "The direction system is rotated 135 degrees; South maps to North-West."},
+    {"question": "Choose the odd pair: (4,16), (5,25), (6,35), (7,49)", "options": ["(4,16)", "(5,25)", "(6,35)", "(7,49)"], "correct": 2, "explanation": "In all other pairs, the second number is the square of the first; 6x6=36, not 35."},
+    {"question": "A is the brother of B. B is the sister of C. How is A related to C?", "options": ["Brother", "Sister", "Cousin", "Cannot be determined"], "correct": 0, "explanation": "Since A is male (brother) and related to both B and C, A is C's brother."},
+    {"question": "Complete the analogy: Doctor is to Hospital as Teacher is to:", "options": ["Book", "School", "Student", "Blackboard"], "correct": 1, "explanation": "A doctor works at a hospital, just as a teacher works at a school."}
+  ],
+  "banking_awareness": [
+    {"question": "What does 'IFSC' stand for in banking?", "options": ["Indian Financial System Code", "International Fund Settlement Code", "Indian Fund Security Code", "Interbank Financial System Code"], "correct": 0, "explanation": "IFSC stands for Indian Financial System Code, used to identify bank branches."},
+    {"question": "Which is the central bank of India?", "options": ["State Bank of India", "Reserve Bank of India", "NABARD", "IDBI"], "correct": 1, "explanation": "The Reserve Bank of India (RBI) is India's central bank."},
+    {"question": "What is the full form of NEFT?", "options": ["National Electronic Funds Transfer", "New Electronic Financial Transfer", "National Exchange Fund Transfer", "Net Electronic Fund Transaction"], "correct": 0, "explanation": "NEFT stands for National Electronic Funds Transfer."},
+    {"question": "The repo rate is the rate at which:", "options": ["RBI lends to commercial banks", "Commercial banks lend to RBI", "Banks lend to customers", "Government borrows from banks"], "correct": 0, "explanation": "Repo rate is the rate at which RBI lends short-term funds to commercial banks."},
+    {"question": "Which of these is a public sector bank in India?", "options": ["HDFC Bank", "ICICI Bank", "Punjab National Bank", "Axis Bank"], "correct": 2, "explanation": "Punjab National Bank is a public sector bank; the others are private banks."},
+    {"question": "What does 'KYC' stand for?", "options": ["Know Your Customer", "Keep Your Cash", "Know Your Credit", "Key Yield Certificate"], "correct": 0, "explanation": "KYC stands for Know Your Customer, a customer identification process."},
+    {"question": "Which committee recommended the establishment of NABARD?", "options": ["Narasimham Committee", "Shivaraman Committee", "Tarapore Committee", "Rangarajan Committee"], "correct": 1, "explanation": "The B. Shivaraman Committee recommended setting up NABARD."},
+    {"question": "What is a 'cheque bounce' commonly caused by?", "options": ["Insufficient funds", "Too many transactions", "Bank holiday", "Wrong branch"], "correct": 0, "explanation": "A cheque typically bounces due to insufficient funds in the account."}
+  ],
+  "cat_quant": [
+    {"question": "If x^2 - 5x + 6 = 0, what are the values of x?", "options": ["2, 3", "1, 6", "-2, -3", "2, -3"], "correct": 0, "explanation": "Factoring: (x-2)(x-3)=0, so x=2 or x=3."},
+    {"question": "A can do a piece of work in 12 days and B in 15 days. In how many days can they complete it working together?", "options": ["6.67 days", "7.5 days", "8 days", "6 days"], "correct": 0, "explanation": "Combined rate = 1/12+1/15 = 9/60, time = 60/9 = 6.67 days."},
+    {"question": "What is the sum of the first 10 natural numbers?", "options": ["45", "50", "55", "60"], "correct": 2, "explanation": "Sum = n(n+1)/2 = 10x11/2 = 55."},
+    {"question": "If the price of an item increases by 25%, by what percentage should it be reduced to bring it back to the original price?", "options": ["20%", "25%", "30%", "15%"], "correct": 0, "explanation": "Reduction needed = 25/(100+25) x 100 = 20%."},
+    {"question": "A alone can finish a job in 8 days, working thrice as fast as B. How many days will B take alone?", "options": ["16 days", "20 days", "24 days", "18 days"], "correct": 2, "explanation": "B's rate is 1/3 of A's, so B takes 8x3 = 24 days."},
+    {"question": "What is the probability of getting a sum of 7 when two dice are rolled?", "options": ["1/6", "1/12", "1/9", "1/8"], "correct": 0, "explanation": "6 favorable outcomes out of 36, probability = 6/36 = 1/6."},
+    {"question": "The area of a circle with radius 7 cm is (use pi=22/7):", "options": ["154 cm^2", "144 cm^2", "164 cm^2", "174 cm^2"], "correct": 0, "explanation": "Area = pi r^2 = 22/7 x 7 x 7 = 154 cm^2."},
+    {"question": "If log base 2 of x = 5, what is x?", "options": ["10", "16", "32", "64"], "correct": 2, "explanation": "2^5 = 32."}
+  ],
+  "cat_verbal": [
+    {"question": "Choose the word most nearly opposite in meaning to 'Benevolent':", "options": ["Kind", "Malevolent", "Generous", "Charitable"], "correct": 1, "explanation": "Malevolent means having a desire to harm others, the opposite of benevolent."},
+    {"question": "Choose the synonym of 'Ubiquitous':", "options": ["Rare", "Omnipresent", "Hidden", "Unique"], "correct": 1, "explanation": "Ubiquitous means present everywhere, synonymous with omnipresent."},
+    {"question": "Fill in the blank: The committee could not reach a consensus, so the decision was ______.", "options": ["postponed", "celebrated", "announced", "finalized"], "correct": 0, "explanation": "Without consensus, a decision would logically be postponed."},
+    {"question": "Identify the correctly spelled word:", "options": ["Occassion", "Occasion", "Ocassion", "Occassionn"], "correct": 1, "explanation": "'Occasion' is the correct spelling."},
+    {"question": "Choose the word that best completes the analogy: Pen is to Write as Knife is to:", "options": ["Sharp", "Cut", "Kitchen", "Metal"], "correct": 1, "explanation": "A pen is used to write, just as a knife is used to cut."},
+    {"question": "Which sentence is grammatically correct?", "options": ["He don't like coffee.", "He doesn't likes coffee.", "He doesn't like coffee.", "He not like coffee."], "correct": 2, "explanation": "'He doesn't like coffee' is grammatically correct."},
+    {"question": "Choose the antonym of 'Verbose':", "options": ["Wordy", "Concise", "Talkative", "Lengthy"], "correct": 1, "explanation": "Verbose means using more words than needed; concise is its opposite."},
+    {"question": "What is the meaning of the idiom 'to beat around the bush'?", "options": ["To be direct", "To avoid the main topic", "To exercise outdoors", "To win a game"], "correct": 1, "explanation": "The idiom means to avoid talking about the main topic directly."}
+  ],
+  "cat_dilr": [
+    {"question": "In a group of 100 people, 60 like tea, 50 like coffee, and 20 like both. How many like neither?", "options": ["0", "10", "20", "30"], "correct": 1, "explanation": "Using set theory: 60+50-20=90 like at least one, so 100-90=10 like neither."},
+    {"question": "If a sequence follows the pattern 1, 4, 9, 16, 25, what is the next term?", "options": ["30", "36", "32", "49"], "correct": 1, "explanation": "The pattern is perfect squares: 6^2 = 36."},
+    {"question": "A table shows sales increasing by 10% each year starting from 100 units. What are the sales in year 2 (rounded)?", "options": ["110", "121", "130", "133"], "correct": 1, "explanation": "Year 1: 110, Year 2: 100 x 1.1^2 = 121."},
+    {"question": "Five people P, Q, R, S, T are ranked by height: S > R > P > Q > T. Who is the shortest?", "options": ["P", "Q", "T", "Cannot be determined"], "correct": 2, "explanation": "Given the order S > R > P > Q > T, T is the shortest."},
+    {"question": "A pie chart shows 25% of a budget is spent on rent. If the total budget is Rs. 40,000, how much is spent on rent?", "options": ["Rs. 8,000", "Rs. 10,000", "Rs. 12,000", "Rs. 15,000"], "correct": 1, "explanation": "25% of 40,000 = Rs. 10,000."},
+    {"question": "If all Bloops are Razzies and all Razzies are Lazzies, which statement must be true?", "options": ["All Lazzies are Bloops", "All Bloops are Lazzies", "No Bloops are Lazzies", "Some Lazzies are not Razzies"], "correct": 1, "explanation": "By transitivity, all Bloops are Razzies which are all Lazzies, so all Bloops are Lazzies."},
+    {"question": "A bar graph shows monthly rainfall. If June had 120mm and July had 20% more, how much rainfall was in July?", "options": ["132mm", "140mm", "144mm", "150mm"], "correct": 2, "explanation": "July rainfall = 120 x 1.2 = 144mm."},
+    {"question": "In a data set, the median of 3, 7, 9, 15, 21 is:", "options": ["7", "9", "15", "12"], "correct": 1, "explanation": "The middle value of the sorted set is 9."}
+  ],
+  "cds_maths": [
+    {"question": "What is the value of sin(90 degrees)?", "options": ["0", "0.5", "1", "-1"], "correct": 2, "explanation": "sin(90 degrees) = 1."},
+    {"question": "If a triangle has sides 3, 4, 5, what type of triangle is it?", "options": ["Equilateral", "Right-angled", "Obtuse", "Isosceles"], "correct": 1, "explanation": "3^2+4^2=5^2, so it satisfies the Pythagorean theorem, making it right-angled."},
+    {"question": "What is the value of 7! (7 factorial)?", "options": ["5040", "4030", "6040", "720"], "correct": 0, "explanation": "7! = 7x6x5x4x3x2x1 = 5040."},
+    {"question": "Solve for x: 2x + 5 = 15", "options": ["5", "10", "7.5", "4"], "correct": 0, "explanation": "2x = 10, x = 5."},
+    {"question": "What is the circumference of a circle with diameter 14 cm (use pi=22/7)?", "options": ["44 cm", "22 cm", "88 cm", "35 cm"], "correct": 0, "explanation": "Circumference = pi x d = 22/7 x 14 = 44 cm."},
+    {"question": "What is the median of the numbers 4, 8, 15, 16, 23?", "options": ["8", "15", "16", "14"], "correct": 1, "explanation": "The middle value when sorted is 15."},
+    {"question": "If cos(theta) = 0.5, what is theta?", "options": ["30 degrees", "45 degrees", "60 degrees", "90 degrees"], "correct": 2, "explanation": "cos(60 degrees) = 0.5."},
+    {"question": "What is the sum of interior angles of a hexagon?", "options": ["540 degrees", "720 degrees", "900 degrees", "360 degrees"], "correct": 1, "explanation": "Sum of interior angles = (n-2) x 180 = (6-2) x 180 = 720 degrees."}
+  ],
+  "cds_gk": [
+    {"question": "Who was the first Chief of Defence Staff of India?", "options": ["Bipin Rawat", "Manoj Mukund Naravane", "Anil Chauhan", "Dalbir Singh"], "correct": 0, "explanation": "General Bipin Rawat was India's first Chief of Defence Staff."},
+    {"question": "The Indian Air Force was established in which year?", "options": ["1932", "1947", "1950", "1939"], "correct": 0, "explanation": "The Indian Air Force was established on 8 October 1932."},
+    {"question": "Which is the highest gallantry award in India?", "options": ["Vir Chakra", "Maha Vir Chakra", "Param Vir Chakra", "Ashoka Chakra"], "correct": 2, "explanation": "The Param Vir Chakra is India's highest military decoration."},
+    {"question": "The Kargil War took place in which year?", "options": ["1999", "1971", "1965", "2001"], "correct": 0, "explanation": "The Kargil War occurred in 1999 between India and Pakistan."},
+    {"question": "Which is the largest branch of the Indian Armed Forces?", "options": ["Indian Navy", "Indian Army", "Indian Air Force", "Coast Guard"], "correct": 1, "explanation": "The Indian Army is the largest branch of the Indian Armed Forces."},
+    {"question": "The National Defence Academy (NDA) is located near which city?", "options": ["Dehradun", "Pune", "Wellington", "Chennai"], "correct": 1, "explanation": "The NDA is located at Khadakwasla, near Pune."},
+    {"question": "INS Vikrant is a type of which vessel?", "options": ["Submarine", "Aircraft carrier", "Destroyer", "Frigate"], "correct": 1, "explanation": "INS Vikrant is an indigenous aircraft carrier of the Indian Navy."},
+    {"question": "Who is the Supreme Commander of the Indian Armed Forces?", "options": ["Prime Minister", "Defence Minister", "President", "Chief of Defence Staff"], "correct": 2, "explanation": "The President of India is the Supreme Commander of the Armed Forces."}
+  ],
+  "cds_english": [
+    {"question": "Choose the correct synonym for 'Courageous':", "options": ["Timid", "Brave", "Weak", "Fearful"], "correct": 1, "explanation": "Brave is a synonym for courageous."},
+    {"question": "Fill in the blank: He has been working here ______ 2015.", "options": ["for", "since", "from", "at"], "correct": 1, "explanation": "'Since' is used with a specific point in time."},
+    {"question": "Choose the correctly punctuated sentence:", "options": ["Its a great day.", "It's a great day.", "Its' a great day.", "Its a great day"], "correct": 1, "explanation": "\"It's\" is the contraction of \"it is\"."},
+    {"question": "Identify the antonym of 'Diligent':", "options": ["Hardworking", "Lazy", "Careful", "Sincere"], "correct": 1, "explanation": "Lazy is the opposite of diligent (hardworking)."},
+    {"question": "Choose the correct passive voice: 'She writes a letter.'", "options": ["A letter is written by her.", "A letter was written by her.", "A letter is being written by her.", "A letter has written by her."], "correct": 0, "explanation": "Present tense passive: 'A letter is written by her.'"},
+    {"question": "What is the plural of 'Criterion'?", "options": ["Criterions", "Criteria", "Criterias", "Criterion"], "correct": 1, "explanation": "The plural of 'criterion' is 'criteria'."},
+    {"question": "Choose the correct meaning of the idiom 'A blessing in disguise':", "options": ["A hidden problem", "Something good that seemed bad at first", "A secret gift", "An unlucky event"], "correct": 1, "explanation": "The idiom refers to something that seems bad but turns out to be good."},
+    {"question": "Choose the correct spelling:", "options": ["Recieve", "Receive", "Receve", "Receeve"], "correct": 1, "explanation": "'Receive' is the correct spelling (i before e except after c)."}
   ]
 }

@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ai.studyassistant.ui.components.BackTopBar
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
-import com.ai.studyassistant.ui.theme.DeepPurple
+import com.ai.studyassistant.ui.theme.BrandNavy
 
 private data class PolicySection(val title: String, val body: String)
 
@@ -46,17 +46,18 @@ private val policySections = listOf(
     ),
     PolicySection(
         title = "Information We Do NOT Collect",
-        body = "ExamAI does not collect any of the following:\n" +
+        body = "ExamAI itself does not collect any of the following:\n" +
                 "❌ Name, email address, or phone number\n" +
                 "❌ Location or GPS data\n" +
-                "❌ Device ID or advertising ID\n" +
                 "❌ Camera or microphone access\n" +
                 "❌ Contacts or call logs\n" +
                 "❌ Photos or media files\n" +
                 "❌ Financial or payment information\n" +
                 "❌ Login credentials or passwords\n" +
                 "❌ Browsing history\n" +
-                "❌ Any personally identifiable information (PII)"
+                "❌ Any personally identifiable information (PII)\n\n" +
+                "The only exception is the advertising ID, used by Google AdMob to serve ads — " +
+                "see \"Advertising\" below for details."
     ),
     PolicySection(
         title = "Information Stored Locally On Your Device",
@@ -94,11 +95,19 @@ private val policySections = listOf(
                 "You can use the full app anonymously from the moment you install it."
     ),
     PolicySection(
-        title = "No Advertising",
-        body = "ExamAI currently does not display any advertisements. We do not use any " +
-                "advertising SDKs such as Google AdMob, Facebook Audience Network, or any " +
-                "other ad network.\n\n" +
-                "Therefore, no advertising ID or tracking data is collected."
+        title = "Advertising",
+        body = "ExamAI shows ads via Google AdMob to keep the app free, at non-intrusive " +
+                "points (list screens and after finishing a quiz) — never during active " +
+                "question-answering.\n\n" +
+                "AdMob may collect and use your device's advertising ID and general technical " +
+                "data (device type, general location from IP, ad interaction data) to serve " +
+                "and measure ads, as described in Google's own Ads Privacy & Terms " +
+                "(policies.google.com/technologies/ads). We do not receive or store this data " +
+                "ourselves — it is processed by Google's ad infrastructure.\n\n" +
+                "Where required by law (e.g. EEA/UK), ExamAI asks for your consent to " +
+                "personalized ads via Google's User Messaging Platform before loading ads. " +
+                "You can decline personalized ads and still see non-personalized ads. You can " +
+                "manage ad personalization for your device in your Google Account settings."
     ),
     PolicySection(
         title = "No Analytics or Tracking",
@@ -109,12 +118,14 @@ private val policySections = listOf(
     ),
     PolicySection(
         title = "Children's Privacy",
-        body = "ExamAI is designed for students of all ages including those under 13 years " +
-                "old. We fully comply with COPPA (Children's Online Privacy Protection Act) " +
-                "and the Google Play Families Policy.\n\n" +
-                "Since we collect zero personal data from any user, the app is completely " +
-                "safe for children to use. Parents do not need to provide consent for their " +
-                "children to use this app."
+        body = "ExamAI is used by students of many ages, including some under 13. We do not " +
+                "knowingly collect personal information from anyone, and the app itself " +
+                "requires no account, login, or personal details from any user, child or " +
+                "adult.\n\n" +
+                "Because the app now serves ads via Google AdMob, we configure ad requests to " +
+                "comply with COPPA and the Google Play Families Policy, and default to " +
+                "non-personalized ads until consent is given. If you are a parent with " +
+                "concerns about ads shown to a child using this app, please contact us."
     ),
     PolicySection(
         title = "Data Security",
@@ -142,8 +153,10 @@ private val policySections = listOf(
     PolicySection(
         title = "Permissions We Request",
         body = "ExamAI requests only the following Android permissions:\n" +
-                "• INTERNET — fetch live questions and study notes from free APIs\n" +
-                "• ACCESS_NETWORK_STATE — check if internet is available before fetching content\n\n" +
+                "• INTERNET — fetch live questions, study notes, and ads\n" +
+                "• ACCESS_NETWORK_STATE — check if internet is available before fetching content\n" +
+                "• POST_NOTIFICATIONS (Android 13+, optional) — show an optional daily practice " +
+                "reminder, which you can decline or turn off anytime in Settings\n\n" +
                 "We do not request permissions for Camera, Microphone, Location, Contacts, " +
                 "Storage, Phone, SMS, or any other sensitive permission."
     ),
@@ -204,7 +217,7 @@ internal fun PrivacyPolicyBody(modifier: Modifier = Modifier) {
     ) {
         item {
             Text(
-                text = "Last Updated: June 22, 2026 • Effective Date: June 22, 2026",
+                text = "Last Updated: August 9, 2026 • Effective Date: June 22, 2026",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 4.dp)
@@ -227,7 +240,7 @@ private fun PolicySectionCard(section: PolicySection) {
             Text(
                 text = section.title,
                 fontWeight = FontWeight.Bold,
-                color = DeepPurple,
+                color = BrandNavy,
                 style = MaterialTheme.typography.titleMedium
             )
             Text(

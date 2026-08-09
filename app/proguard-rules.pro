@@ -28,6 +28,15 @@
     <fields>;
 }
 
+# data/model classes are also deserialized by Gson (e.g. LocalQuestionBank reads
+# assets/questions.json into Question via TypeToken<Map<String, List<Question>>>).
+# Without this, R8 renames/removes fields and Gson silently leaves them at their
+# JVM defaults (null/0), which crashes the app the first time a quiz is opened.
+-keep class com.ai.studyassistant.data.model.** { *; }
+-keepclassmembers,allowobfuscation class com.ai.studyassistant.data.model.** {
+    <fields>;
+}
+
 # Gson generic signatures / TypeToken support
 -keepattributes Signature
 -keepattributes *Annotation*

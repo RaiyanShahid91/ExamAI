@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ai.studyassistant.data.model.StudyNote
 import com.ai.studyassistant.ui.components.BackTopBar
+import com.ai.studyassistant.ui.components.BannerAdView
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.viewmodel.NotesUiState
 import com.ai.studyassistant.viewmodel.NotesViewModel
@@ -72,7 +73,12 @@ private fun StudyNotesContent(
     var query by remember { mutableStateOf("") }
 
     Scaffold(
-        topBar = { BackTopBar(title = "Study Notes", onBack = onBack) }
+        topBar = {
+            Column {
+                BackTopBar(title = "Study Notes", onBack = onBack)
+                BannerAdView()
+            }
+        }
     ) { padding ->
         Column(
             modifier = Modifier

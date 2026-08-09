@@ -1,8 +1,22 @@
 package com.ai.studyassistant.ui.screens
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,10 +24,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,11 +43,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ai.studyassistant.data.model.Question
 import com.ai.studyassistant.ui.components.BackTopBar
+import com.ai.studyassistant.ui.components.BannerAdView
+import com.ai.studyassistant.ui.components.OfflineBanner
+import com.ai.studyassistant.ui.components.bounceClick
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.ui.theme.CorrectGreen
 import com.ai.studyassistant.ui.theme.WrongRed
@@ -38,21 +60,44 @@ import com.ai.studyassistant.viewmodel.QuizViewModel
 
 @Composable
 fun QuizScreen(
-    exam: String,
-    subject: String,
-    topic: String,
+    exam: String = "",
+    subject: String = "",
+    topic: String = "",
+    attemptId: Long? = null,
+    difficulty: String? = null,
+    timed: Boolean = false,
+    mockExam: String? = null,
     viewModel: QuizViewModel,
     onBack: () -> Unit,
     onFinished: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val bookmarkedTexts by viewModel.bookmarkedQuestionTexts.collectAsState()
+    val isOffline by viewModel.isOffline.collectAsState()
 
-    LaunchedEffect(exam, subject, topic) {
-        viewModel.loadQuestions(exam, subject, topic)
+    LaunchedEffect(exam, subject, topic, attemptId, mockExam) {
+        when {
+            attemptId != null -> viewModel.resumeAttempt(attemptId)
+            mockExam != null -> viewModel.loadMockExam(mockExam, timed)
+            else -> viewModel.loadQuestions(exam, subject, topic, difficulty, timed)
+        }
+    }
+
+    LaunchedEffect(uiState.timeRemainingSeconds) {
+        if (uiState.isTimed && uiState.timeRemainingSeconds == 0) {
+            viewModel.finishAttempt()
+            onFinished()
+        }
     }
 
     Scaffold(
-        topBar = { BackTopBar(title = topic, onBack = onBack) }
+        topBar = {
+            Column {
+                BackTopBar(title = uiState.topic.ifBlank { topic }, onBack = onBack)
+                if (isOffline) OfflineBanner()
+                BannerAdView()
+            }
+        }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -63,13 +108,22 @@ fun QuizScreen(
                 uiState.isLoading -> LoadingScreen()
                 uiState.error != null -> QuizError(
                     message = uiState.error.orEmpty(),
-                    onRetry = { viewModel.loadQuestions(exam, subject, topic) }
+                    onRetry = {
+                        when {
+                            attemptId != null -> viewModel.resumeAttempt(attemptId)
+                            mockExam != null -> viewModel.loadMockExam(mockExam, timed)
+                            else -> viewModel.loadQuestions(exam, subject, topic, difficulty, timed)
+                        }
+                    }
                 )
                 uiState.currentQuestion != null -> QuizContent(
                     uiState = uiState,
+                    isBookmarked = bookmarkedTexts.contains(uiState.currentQuestion?.question),
                     onSelectAnswer = viewModel::selectAnswer,
+                    onToggleBookmark = viewModel::toggleBookmark,
                     onNext = {
                         if (uiState.isLastQuestion) {
+                            viewModel.finishAttempt()
                             onFinished()
                         } else {
                             viewModel.nextQuestion()
@@ -104,7 +158,9 @@ private fun QuizError(message: String, onRetry: () -> Unit) {
 @Composable
 private fun QuizContent(
     uiState: QuizUiState,
+    isBookmarked: Boolean = false,
     onSelectAnswer: (Int) -> Unit,
+    onToggleBookmark: () -> Unit = {},
     onNext: () -> Unit
 ) {
     val question = uiState.currentQuestion ?: return
@@ -115,91 +171,161 @@ private fun QuizContent(
             .verticalScroll(rememberScrollState())
             .padding(20.dp)
     ) {
-        Text(
-            text = "Question ${uiState.currentIndex + 1} of ${uiState.questions.size}",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "Question ${uiState.currentIndex + 1} of ${uiState.questions.size}",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f)
+            )
+            if (uiState.isTimed && uiState.timeRemainingSeconds != null) {
+                TimerChip(secondsRemaining = uiState.timeRemainingSeconds)
+            }
+            IconButton(onClick = onToggleBookmark) {
+                Icon(
+                    imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                    contentDescription = "Bookmark question",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
         LinearProgressIndicator(
             progress = { (uiState.currentIndex + 1) / uiState.questions.size.toFloat() },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 20.dp)
+                .padding(bottom = 20.dp)
         )
 
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = question.question,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(20.dp)
-            )
-        }
-
-        Column(
-            modifier = Modifier
-                .padding(top = 20.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            question.options.forEachIndexed { index, option ->
-                OptionCard(
-                    text = option,
-                    index = index,
-                    question = question,
-                    uiState = uiState,
-                    onClick = { onSelectAnswer(index) }
-                )
-            }
-        }
-
-        if (uiState.isAnswered) {
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                modifier = Modifier.padding(top = 20.dp)
-            ) {
-                Text(
-                    text = question.explanation,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-
-            if (!uiState.topicSummary.isNullOrBlank()) {
+        AnimatedContent(
+            targetState = uiState.currentIndex,
+            transitionSpec = {
+                (slideInHorizontally(tween(280)) { it / 3 } + fadeIn(tween(280))) togetherWith
+                    (slideOutHorizontally(tween(220)) { -it / 3 } + fadeOut(tween(220)))
+            },
+            label = "questionTransition"
+        ) { _ ->
+            Column {
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.medium,
                     color = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.padding(top = 12.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "From Wikipedia",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = uiState.topicSummary,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(top = 4.dp)
+                    Text(
+                        text = question.question,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(20.dp)
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .padding(top = 20.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    question.options.forEachIndexed { index, option ->
+                        OptionCard(
+                            text = option,
+                            index = index,
+                            question = question,
+                            uiState = uiState,
+                            onClick = { onSelectAnswer(index) }
                         )
                     }
                 }
-            }
 
-            Button(
-                onClick = onNext,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp)
-            ) {
-                Text(if (uiState.isLastQuestion) "See Result" else "Next Question")
+                if (uiState.isAnswered) {
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        modifier = Modifier.padding(top = 20.dp)
+                    ) {
+                        Text(
+                            text = question.explanation,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+
+                    if (!uiState.topicSummary.isNullOrBlank()) {
+                        Surface(
+                            shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.padding(top = 12.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = "From Wikipedia",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = uiState.topicSummary,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Button(
+                        onClick = onNext,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 20.dp)
+                            .bounceClick()
+                    ) {
+                        Text(if (uiState.isLastQuestion) "See Result" else "Next Question")
+                    }
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun TimerChip(secondsRemaining: Int) {
+    val minutes = secondsRemaining / 60
+    val seconds = secondsRemaining % 60
+    val isLow = secondsRemaining <= 30
+
+    val pulseScale = if (isLow) {
+        val transition = rememberInfiniteTransition(label = "timerPulse")
+        val pulse by transition.animateFloat(
+            initialValue = 1f,
+            targetValue = 1.12f,
+            animationSpec = infiniteRepeatable(tween(500, easing = LinearEasing), RepeatMode.Reverse),
+            label = "timerPulseScale"
+        )
+        pulse
+    } else {
+        1f
+    }
+
+    Surface(
+        shape = RoundedCornerShape(50),
+        color = if (isLow) WrongRed.copy(alpha = 0.15f) else MaterialTheme.colorScheme.primaryContainer,
+        modifier = Modifier
+            .padding(end = 4.dp)
+            .scale(pulseScale)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Timer,
+                contentDescription = "Time remaining",
+                tint = if (isLow) WrongRed else MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(end = 4.dp)
+            )
+            Text(
+                text = "%d:%02d".format(minutes, seconds),
+                style = MaterialTheme.typography.labelLarge,
+                color = if (isLow) WrongRed else MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
@@ -215,18 +341,20 @@ private fun OptionCard(
     val isSelected = uiState.selectedOptionIndex == index
     val isCorrectOption = index == question.correct
 
-    val containerColor = when {
+    val targetContainerColor = when {
         !uiState.isAnswered -> MaterialTheme.colorScheme.surface
         isCorrectOption -> CorrectGreen.copy(alpha = 0.15f)
         isSelected -> WrongRed.copy(alpha = 0.15f)
         else -> MaterialTheme.colorScheme.surface
     }
-    val borderColor = when {
+    val targetBorderColor = when {
         !uiState.isAnswered -> MaterialTheme.colorScheme.outlineVariant
         isCorrectOption -> CorrectGreen
         isSelected -> WrongRed
         else -> MaterialTheme.colorScheme.outlineVariant
     }
+    val containerColor by animateColorAsState(targetContainerColor, tween(300), label = "optionContainerColor")
+    val borderColor by animateColorAsState(targetBorderColor, tween(300), label = "optionBorderColor")
 
     Surface(
         shape = RoundedCornerShape(14.dp),
@@ -234,7 +362,9 @@ private fun OptionCard(
         border = androidx.compose.foundation.BorderStroke(1.5.dp, borderColor),
         onClick = onClick,
         enabled = !uiState.isAnswered,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .bounceClick()
     ) {
         Box(modifier = Modifier.padding(16.dp)) {
             androidx.compose.foundation.layout.Row(

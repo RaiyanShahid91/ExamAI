@@ -20,12 +20,17 @@ class QuestionRepository(
 ) {
     private val questionDao = QuizDatabase.getInstance(context).questionDao()
 
-    suspend fun getQuiz(exam: String, subject: String, topic: String): Result<List<Question>> {
+    suspend fun getQuiz(
+        exam: String,
+        subject: String,
+        topic: String,
+        difficulty: String? = null
+    ): Result<List<Question>> {
         val bankKey = ExamData.localBankKey(exam, subject)
             ?: return Result.failure(IllegalArgumentException("No question bank for $exam/$subject"))
 
         val localQuestions = LocalQuestionBank.questionsFor(context, bankKey).shuffled()
-        val remoteQuestions = fetchRemoteBlend(bankKey, subject)
+        val remoteQuestions = fetchRemoteBlend(bankKey, subject, difficulty)
 
         val remoteCount = remoteQuestions.size.coerceAtMost(MAX_REMOTE_BLEND)
         val blended = (remoteQuestions.take(remoteCount) + localQuestions)
@@ -33,8 +38,37 @@ class QuestionRepository(
             .shuffled()
             .take(QUIZ_SIZE)
 
-        return if (blended.isEmpty()) {
+        val filtered = if (difficulty == null) {
+            blended
+        } else {
+            blended.filter { it.difficulty.equals(difficulty, ignoreCase = true) }
+                .ifEmpty { blended }
+        }
+
+        return if (filtered.isEmpty()) {
             Result.failure(IllegalStateException("No questions available for $topic right now."))
+        } else {
+            Result.success(filtered)
+        }
+    }
+
+    suspend fun getMockExam(exam: String, questionCount: Int = 30): Result<List<Question>> {
+        val subjects = ExamData.subjectsFor(exam)
+        if (subjects.isEmpty()) {
+            return Result.failure(IllegalArgumentException("No subjects found for $exam"))
+        }
+
+        val allQuestions = subjects.flatMap { subject ->
+            val bankKey = ExamData.localBankKey(exam, subject.name) ?: return@flatMap emptyList()
+            val local = LocalQuestionBank.questionsFor(context, bankKey)
+            val remote = fetchRemoteBlend(bankKey, subject.name)
+            (remote.take(MAX_REMOTE_BLEND) + local).distinctBy { it.question }
+        }
+
+        val blended = allQuestions.shuffled().take(questionCount)
+
+        return if (blended.isEmpty()) {
+            Result.failure(IllegalStateException("No questions available for a $exam mock exam right now."))
         } else {
             Result.success(blended)
         }
@@ -50,13 +84,17 @@ class QuestionRepository(
         }
     }
 
-    private suspend fun fetchRemoteBlend(bankKey: String, subject: String): List<Question> {
+    private suspend fun fetchRemoteBlend(bankKey: String, subject: String, difficulty: String? = null): List<Question> {
         val category = ExamData.triviaCategoryFor(subject)
         val online = NetworkUtils.isOnline(context)
 
         if (online && category != null) {
             try {
-                val response = triviaService.getQuestions(amount = QUIZ_SIZE, category = category)
+                val response = triviaService.getQuestions(
+                    amount = QUIZ_SIZE,
+                    category = category,
+                    difficulty = difficulty?.lowercase()
+                )
                 val mapped = response.results.map { it.toQuestion() }
                 if (mapped.isNotEmpty()) {
                     questionDao.replaceBankKey(bankKey, mapped.map { it.toEntity(bankKey) })
@@ -79,7 +117,8 @@ class QuestionRepository(
             question = decodedQuestion,
             options = options,
             correct = correctIndex,
-            explanation = "Correct answer: $correctText"
+            explanation = "Correct answer: $correctText",
+            difficulty = difficulty
         )
     }
 

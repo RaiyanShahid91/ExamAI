@@ -1,6 +1,13 @@
 package com.ai.studyassistant.ui.screens
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,36 +27,64 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ai.studyassistant.ads.InterstitialAdManager
+import com.ai.studyassistant.data.local.FirstRunPreferences
+import com.ai.studyassistant.ui.components.AnimatedCounter
 import com.ai.studyassistant.ui.components.GradientBackground
+import com.ai.studyassistant.ui.components.bounceClick
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
-import com.ai.studyassistant.ui.theme.Cyan
-import com.ai.studyassistant.ui.theme.DeepPurple
+import com.ai.studyassistant.ui.theme.BrandNavy
+import com.ai.studyassistant.ui.theme.GradientTokens
 import com.ai.studyassistant.viewmodel.QuizViewModel
+
+private const val INTERSTITIAL_EVERY_N_ATTEMPTS = 3
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
 
 @Composable
 fun ResultScreen(
     viewModel: QuizViewModel,
+    fromHistory: Boolean = false,
     onTryAgain: () -> Unit,
-    onNewTopic: () -> Unit
+    onNewTopic: () -> Unit,
+    onBack: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val total = uiState.questions.size.coerceAtLeast(1)
     val score = uiState.score
     val context = LocalContext.current
 
+    LaunchedEffect(Unit) {
+        val firstRunPreferences = FirstRunPreferences(context)
+        val count = firstRunPreferences.incrementCompletedAttemptCount()
+        if (count % INTERSTITIAL_EVERY_N_ATTEMPTS == 0) {
+            context.findActivity()?.let { activity ->
+                InterstitialAdManager.showIfAvailable(activity)
+            }
+        }
+    }
+
     ResultContent(
         score = score,
         total = total,
+        fromHistory = fromHistory,
         onShare = {
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
@@ -61,7 +96,8 @@ fun ResultScreen(
             context.startActivity(Intent.createChooser(shareIntent, "Share your score"))
         },
         onTryAgain = onTryAgain,
-        onNewTopic = onNewTopic
+        onNewTopic = onNewTopic,
+        onBack = onBack
     )
 }
 
@@ -69,13 +105,22 @@ fun ResultScreen(
 private fun ResultContent(
     score: Int,
     total: Int,
+    fromHistory: Boolean = false,
     onShare: () -> Unit,
     onTryAgain: () -> Unit,
-    onNewTopic: () -> Unit
+    onNewTopic: () -> Unit,
+    onBack: () -> Unit = {}
 ) {
     val (message, emoji) = performanceMessage(score, total)
+    val trophyScale = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        trophyScale.animateTo(
+            1f,
+            spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
+        )
+    }
 
-    GradientBackground(colors = listOf(DeepPurple, Cyan)) {
+    GradientBackground(colors = GradientTokens.hero(), animated = true) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -83,22 +128,30 @@ private fun ResultContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Surface(shape = CircleShape, color = Color.White, modifier = Modifier.size(96.dp)) {
+            Surface(
+                shape = CircleShape,
+                color = Color.White,
+                modifier = Modifier
+                    .size(96.dp)
+                    .scale(trophyScale.value)
+            ) {
                 Icon(
                     imageVector = Icons.Default.EmojiEvents,
                     contentDescription = null,
-                    tint = DeepPurple,
+                    tint = BrandNavy,
                     modifier = Modifier.padding(20.dp)
                 )
             }
 
-            Text(
-                text = "$score / $total",
-                style = MaterialTheme.typography.displayMedium,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
-                modifier = Modifier.padding(top = 20.dp)
-            )
+            AnimatedCounter(target = score) { animatedScore ->
+                Text(
+                    text = "$animatedScore / $total",
+                    style = MaterialTheme.typography.displayMedium,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White,
+                    modifier = Modifier.padding(top = 20.dp)
+                )
+            }
             Text(
                 text = emoji,
                 style = MaterialTheme.typography.headlineMedium,
@@ -134,14 +187,18 @@ private fun ResultContent(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedButton(
-                    onClick = onNewTopic,
-                    modifier = Modifier.weight(1f)
+                    onClick = if (fromHistory) onBack else onNewTopic,
+                    modifier = Modifier
+                        .weight(1f)
+                        .bounceClick()
                 ) {
-                    Text("New Topic")
+                    Text(if (fromHistory) "Back" else "New Topic")
                 }
                 Button(
                     onClick = onTryAgain,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .bounceClick()
                 ) {
                     Text("Try Again")
                 }

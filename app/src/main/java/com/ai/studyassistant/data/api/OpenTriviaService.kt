@@ -28,6 +28,7 @@ interface OpenTriviaService {
     suspend fun getQuestions(
         @Query("amount") amount: Int,
         @Query("category") category: Int? = null,
+        @Query("difficulty") difficulty: String? = null,
         @Query("type") type: String = "multiple"
     ): TriviaResponse
 

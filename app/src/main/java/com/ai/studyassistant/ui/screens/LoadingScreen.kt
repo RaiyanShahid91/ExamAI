@@ -27,8 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ai.studyassistant.ui.components.GradientBackground
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
-import com.ai.studyassistant.ui.theme.Cyan
-import com.ai.studyassistant.ui.theme.GradientPurple
+import com.ai.studyassistant.ui.theme.GradientTokens
 
 @Composable
 fun LoadingScreen(message: String = "Generating your questions...") {
@@ -52,7 +51,7 @@ fun LoadingScreen(message: String = "Generating your questions...") {
         label = "pulse"
     )
 
-    GradientBackground(colors = listOf(GradientPurple, Cyan)) {
+    GradientBackground(colors = GradientTokens.hero(), animated = true) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
