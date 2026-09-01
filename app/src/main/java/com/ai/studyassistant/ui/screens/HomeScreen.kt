@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.VerifiedUser
@@ -59,6 +60,7 @@ import com.ai.studyassistant.data.model.Exam
 import com.ai.studyassistant.data.model.ExamData
 import com.ai.studyassistant.data.model.Question
 import com.ai.studyassistant.data.model.TopicStat
+import com.ai.studyassistant.data.repository.ReviewRepository
 import com.ai.studyassistant.notification.DailyReminderWorker
 import com.ai.studyassistant.notification.ReminderPreferences
 import com.ai.studyassistant.ui.components.BannerAdView
@@ -81,6 +83,7 @@ fun HomeScreen(
     onSettingsClick: () -> Unit,
     onHistoryClick: () -> Unit,
     onBookmarksClick: () -> Unit,
+    onReviewClick: () -> Unit = {},
     onPracticeTopic: (String, String, String) -> Unit
 ) {
     val dailyQuestion by quizViewModel.dailyQuestion.collectAsState()
@@ -91,6 +94,8 @@ fun HomeScreen(
     val context = LocalContext.current
     val firstRunPreferences = remember { FirstRunPreferences(context) }
     val reminderPreferences = remember { ReminderPreferences(context) }
+    val reviewRepository = remember { ReviewRepository(context) }
+    val dueReviewCount by reviewRepository.observeDueCount().collectAsState(initial = 0)
     val hasPromptedNotification by firstRunPreferences.hasPromptedNotificationPermission.collectAsState(initial = true)
     val scope = rememberCoroutineScope()
 
@@ -126,12 +131,14 @@ fun HomeScreen(
         dailyQuestion = dailyQuestion,
         streak = streak,
         weakestTopic = weakestTopic,
+        dueReviewCount = dueReviewCount,
         isOffline = isOffline,
         onExamSelected = onExamSelected,
         onNotesClick = onNotesClick,
         onAboutClick = onSettingsClick,
         onHistoryClick = onHistoryClick,
         onBookmarksClick = onBookmarksClick,
+        onReviewClick = onReviewClick,
         onPracticeTopic = onPracticeTopic
     )
 }
@@ -141,12 +148,14 @@ private fun HomeScreenContent(
     dailyQuestion: Question?,
     streak: Int = 0,
     weakestTopic: TopicStat? = null,
+    dueReviewCount: Int = 0,
     isOffline: Boolean = false,
     onExamSelected: (String) -> Unit,
     onNotesClick: () -> Unit,
     onAboutClick: () -> Unit,
     onHistoryClick: () -> Unit,
     onBookmarksClick: () -> Unit = {},
+    onReviewClick: () -> Unit = {},
     onPracticeTopic: (String, String, String) -> Unit = { _, _, _ -> }
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -251,6 +260,14 @@ private fun HomeScreenContent(
                     if (streak > 0) {
                         item {
                             StaggeredEntrance(index = cardIndex) { StreakCard(streak = streak) }
+                        }
+                        cardIndex++
+                    }
+                    if (dueReviewCount > 0) {
+                        item {
+                            StaggeredEntrance(index = cardIndex) {
+                                ReviewCard(dueCount = dueReviewCount, onClick = onReviewClick)
+                            }
                         }
                         cardIndex++
                     }
@@ -380,6 +397,51 @@ private fun StreakCard(streak: Int) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ReviewCard(dueCount: Int, onClick: () -> Unit) {
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .bounceClick()
+    ) {
+        Row(
+            modifier = Modifier.padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.EventAvailable,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(32.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp)
+            ) {
+                Text(
+                    text = "$dueCount question${if (dueCount == 1) "" else "s"} to review",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Revisit questions you got wrong before",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

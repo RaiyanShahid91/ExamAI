@@ -13,6 +13,7 @@ object Routes {
     const val PRIVACY_POLICY = "privacy_policy"
     const val HISTORY = "history"
     const val BOOKMARKS = "bookmarks"
+    const val REVIEW = "review"
     const val ATTEMPT_DETAIL = "attempt/{attemptId}"
     const val QUIZ_RESUME = "quiz_resume/{attemptId}"
     const val MOCK_QUIZ = "mock_quiz/{exam}?timed={timed}"

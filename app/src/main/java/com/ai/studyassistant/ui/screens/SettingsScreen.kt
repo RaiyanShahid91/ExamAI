@@ -1,7 +1,9 @@
 package com.ai.studyassistant.ui.screens
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +24,8 @@ import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,6 +33,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -47,10 +52,14 @@ import com.ai.studyassistant.ui.components.BackTopBar
 import com.ai.studyassistant.ui.components.bounceClick
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.ui.theme.BrandNavy
+import com.ai.studyassistant.viewmodel.UpdateViewModel
 import kotlinx.coroutines.launch
+
+private const val PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.ai.studyassistant"
 
 @Composable
 fun SettingsScreen(
+    updateViewModel: UpdateViewModel,
     onBack: () -> Unit,
     onAboutClick: () -> Unit,
     onTermsClick: () -> Unit,
@@ -60,6 +69,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val reminderPreferences = remember { ReminderPreferences(context) }
     val reminderEnabled by reminderPreferences.isEnabled.collectAsState(initial = false)
+    val updateUiState by updateViewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
 
     fun enableReminders() {
@@ -71,6 +81,12 @@ fun SettingsScreen(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) enableReminders()
+    }
+
+    LaunchedEffect(updateUiState.statusMessage) {
+        val message = updateUiState.statusMessage ?: return@LaunchedEffect
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        updateViewModel.clearStatusMessage()
     }
 
     SettingsContent(
@@ -86,6 +102,21 @@ fun SettingsScreen(
                 enableReminders()
             }
         },
+        onCheckForUpdate = {
+            AnalyticsManager.logEvent("settings_row_clicked", mapOf("row" to "check_for_update"))
+            updateViewModel.checkForUpdate(manual = true)
+        },
+        onShareApp = {
+            AnalyticsManager.logEvent("settings_row_clicked", mapOf("row" to "share_app"))
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    "Check out ExamAI — a free study assistant for JEE, NEET & UPSC prep: $PLAY_STORE_URL"
+                )
+            }
+            context.startActivity(Intent.createChooser(shareIntent, "Share ExamAI"))
+        },
         onBack = onBack,
         onAboutClick = onAboutClick,
         onTermsClick = onTermsClick,
@@ -98,6 +129,8 @@ fun SettingsScreen(
 private fun SettingsContent(
     reminderEnabled: Boolean,
     onReminderToggle: (Boolean) -> Unit,
+    onCheckForUpdate: () -> Unit,
+    onShareApp: () -> Unit,
     onBack: () -> Unit,
     onAboutClick: () -> Unit,
     onTermsClick: () -> Unit,
@@ -116,6 +149,22 @@ private fun SettingsContent(
         ) {
             item { SettingsHeader() }
             item { ReminderToggleCard(enabled = reminderEnabled, onToggle = onReminderToggle) }
+            item {
+                SettingsRow(
+                    icon = Icons.Default.SystemUpdate,
+                    title = "Check for Updates",
+                    subtitle = "See if a newer version of ExamAI is available",
+                    onClick = onCheckForUpdate
+                )
+            }
+            item {
+                SettingsRow(
+                    icon = Icons.Default.Share,
+                    title = "Share App",
+                    subtitle = "Tell a friend about ExamAI",
+                    onClick = onShareApp
+                )
+            }
             item {
                 SettingsRow(
                     icon = Icons.Default.Info,
@@ -267,6 +316,8 @@ private fun SettingsScreenPreview() {
         SettingsContent(
             reminderEnabled = true,
             onReminderToggle = {},
+            onCheckForUpdate = {},
+            onShareApp = {},
             onBack = {},
             onAboutClick = {},
             onTermsClick = {},

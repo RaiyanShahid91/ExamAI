@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import com.ai.studyassistant.ads.ADS_ENABLED
 import com.ai.studyassistant.ads.AdIds
 import com.ai.studyassistant.ads.ConsentManager
 import com.google.android.gms.ads.AdRequest
@@ -20,6 +21,7 @@ import com.google.android.gms.ads.AdView
  */
 @Composable
 fun BannerAdView(modifier: Modifier = Modifier) {
+    if (!ADS_ENABLED) return
     val adsReady by ConsentManager.adsReady.collectAsState()
     if (!adsReady) return
 

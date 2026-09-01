@@ -31,7 +31,7 @@ object NotificationHelper {
         }
     }
 
-    fun showReminder(context: Context) {
+    fun showReminder(context: Context, dueReviewCount: Int = 0) {
         ensureChannel(context)
 
         val hasPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
@@ -45,10 +45,16 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val contentText = if (dueReviewCount > 0) {
+            "You have $dueReviewCount question${if (dueReviewCount == 1) "" else "s"} to review today."
+        } else {
+            "Take today's quiz on ExamAI."
+        }
+
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Keep your streak going!")
-            .setContentText("Take today's quiz on ExamAI.")
+            .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

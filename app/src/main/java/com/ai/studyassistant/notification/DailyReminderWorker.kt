@@ -6,6 +6,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.ai.studyassistant.data.repository.ReviewRepository
+import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
 
 class DailyReminderWorker(
@@ -14,7 +16,8 @@ class DailyReminderWorker(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        NotificationHelper.showReminder(applicationContext)
+        val dueReviewCount = ReviewRepository(applicationContext).observeDueCount().first()
+        NotificationHelper.showReminder(applicationContext, dueReviewCount)
         return Result.success()
     }
 

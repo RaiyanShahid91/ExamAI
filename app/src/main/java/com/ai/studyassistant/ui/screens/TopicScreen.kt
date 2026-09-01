@@ -1,6 +1,7 @@
 package com.ai.studyassistant.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.model.ExamData
 import com.ai.studyassistant.ui.components.BackTopBar
+import com.ai.studyassistant.ui.components.BannerAdView
 import com.ai.studyassistant.ui.components.StaggeredEntrance
 import com.ai.studyassistant.ui.components.bounceClick
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
@@ -48,7 +50,12 @@ fun TopicScreen(
     var timedMode by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { BackTopBar(title = subject, onBack = onBack) }
+        topBar = {
+            Column {
+                BackTopBar(title = subject, onBack = onBack)
+                BannerAdView()
+            }
+        }
     ) { padding ->
         LazyColumn(
             contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),

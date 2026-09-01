@@ -4,14 +4,17 @@ import android.graphics.Color as AndroidColor
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,8 +27,12 @@ import com.ai.studyassistant.ads.ConsentManager
 import com.ai.studyassistant.data.local.FirstRunPreferences
 import com.ai.studyassistant.navigation.NavGraph
 import com.ai.studyassistant.navigation.Routes
+import com.ai.studyassistant.ui.components.UpdateAvailableDialog
+import com.ai.studyassistant.ui.components.UpdateReadyDialog
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
+import com.ai.studyassistant.ui.util.findActivity
 import com.ai.studyassistant.viewmodel.QuizViewModel
+import com.ai.studyassistant.viewmodel.UpdateViewModel
 import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
@@ -74,10 +81,39 @@ private fun ExamAIApp() {
 
     val navController = rememberNavController()
     val viewModel: QuizViewModel = viewModel()
+    val updateViewModel: UpdateViewModel = viewModel()
+    val updateUiState by updateViewModel.uiState.collectAsState()
+
+    val updateLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { /* Play's own flow drives progress from here via the install-state listener. */ }
+
+    LaunchedEffect(Unit) {
+        updateViewModel.checkOnLaunch()
+    }
 
     NavGraph(
         navController = navController,
         viewModel = viewModel,
+        updateViewModel = updateViewModel,
         startDestination = destination
     )
+
+    if (updateUiState.showDialog && updateUiState.availableUpdateInfo != null) {
+        UpdateAvailableDialog(
+            onUpdate = {
+                context.findActivity()?.let { activity ->
+                    updateViewModel.startUpdate(activity, updateLauncher)
+                }
+            },
+            onCancel = updateViewModel::dismissDialog
+        )
+    }
+
+    if (updateUiState.installReady) {
+        UpdateReadyDialog(
+            onRestart = updateViewModel::completeInstall,
+            onLater = updateViewModel::dismissInstallReady
+        )
+    }
 }

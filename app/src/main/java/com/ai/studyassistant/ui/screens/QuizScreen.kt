@@ -44,9 +44,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ai.studyassistant.ads.InterstitialAdManager
 import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.model.Question
 import com.ai.studyassistant.ui.components.BackTopBar
@@ -56,6 +58,7 @@ import com.ai.studyassistant.ui.components.bounceClick
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.ui.theme.CorrectGreen
 import com.ai.studyassistant.ui.theme.WrongRed
+import com.ai.studyassistant.ui.util.findActivity
 import com.ai.studyassistant.viewmodel.QuizUiState
 import com.ai.studyassistant.viewmodel.QuizViewModel
 
@@ -75,6 +78,20 @@ fun QuizScreen(
     val uiState by viewModel.uiState.collectAsState()
     val bookmarkedTexts by viewModel.bookmarkedQuestionTexts.collectAsState()
     val isOffline by viewModel.isOffline.collectAsState()
+    val context = LocalContext.current
+
+    // The score reveal is gated behind an interstitial so it plays before every result,
+    // not after landing on it — falls straight through to onFinished if no ad is ready
+    // (no activity, load still in flight, fill failure) so a slow/missing ad never blocks.
+    val finishAndShowResult: () -> Unit = {
+        viewModel.finishAttempt()
+        val activity = context.findActivity()
+        if (activity != null) {
+            InterstitialAdManager.showIfAvailable(activity, onDismissed = onFinished)
+        } else {
+            onFinished()
+        }
+    }
 
     LaunchedEffect(exam, subject, topic, attemptId, mockExam) {
         when {
@@ -86,8 +103,7 @@ fun QuizScreen(
 
     LaunchedEffect(uiState.timeRemainingSeconds) {
         if (uiState.isTimed && uiState.timeRemainingSeconds == 0) {
-            viewModel.finishAttempt()
-            onFinished()
+            finishAndShowResult()
         }
     }
 
@@ -125,8 +141,7 @@ fun QuizScreen(
                     onToggleBookmark = viewModel::toggleBookmark,
                     onNext = {
                         if (uiState.isLastQuestion) {
-                            viewModel.finishAttempt()
-                            onFinished()
+                            finishAndShowResult()
                         } else {
                             viewModel.nextQuestion()
                         }

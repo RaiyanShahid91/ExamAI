@@ -15,8 +15,8 @@ android {
         applicationId = "com.ai.studyassistant"
         minSdk = 26
         targetSdk = 36
-        versionCode = 10
-        versionName = "1.2.1"
+        versionCode = 11
+        versionName = "1.2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -80,6 +80,11 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.play.services.ads)
     implementation(libs.user.messaging.platform)
+    implementation(libs.play.app.update.ktx)
+    // Not used directly — play-services-ads and app-update-ktx transitively pull in
+    // androidx.fragment 1.1.0, which Play Console flags as outdated. Declaring it here
+    // forces Gradle's version resolution to the newer one instead.
+    implementation(libs.androidx.fragment.ktx)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)

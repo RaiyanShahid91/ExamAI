@@ -1,14 +1,12 @@
 package com.ai.studyassistant.ui.screens
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,24 +38,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ai.studyassistant.ads.InterstitialAdManager
 import com.ai.studyassistant.analytics.AnalyticsManager
-import com.ai.studyassistant.data.local.FirstRunPreferences
 import com.ai.studyassistant.ui.components.AnimatedCounter
+import com.ai.studyassistant.ui.components.BannerAdView
 import com.ai.studyassistant.ui.components.GradientBackground
 import com.ai.studyassistant.ui.components.bounceClick
+import com.ai.studyassistant.ui.util.ScoreCardRenderer
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.ui.theme.BrandNavy
 import com.ai.studyassistant.ui.theme.GradientTokens
 import com.ai.studyassistant.viewmodel.QuizViewModel
-
-private const val INTERSTITIAL_EVERY_N_ATTEMPTS = 3
-
-private tailrec fun Context.findActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
-}
 
 @Composable
 fun ResultScreen(
@@ -72,28 +62,33 @@ fun ResultScreen(
     val score = uiState.score
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        val firstRunPreferences = FirstRunPreferences(context)
-        val count = firstRunPreferences.incrementCompletedAttemptCount()
-        if (count % INTERSTITIAL_EVERY_N_ATTEMPTS == 0) {
-            context.findActivity()?.let { activity ->
-                InterstitialAdManager.showIfAvailable(activity)
-            }
-        }
-    }
-
     ResultContent(
         score = score,
         total = total,
         fromHistory = fromHistory,
         onShare = {
-            AnalyticsManager.logEvent("score_shared", mapOf("score" to score, "total" to total))
+            AnalyticsManager.logEvent("score_shared", mapOf("score" to score, "total" to total, "share_type" to "image"))
+            val (message, emoji) = performanceMessage(score, total)
+            val examLabel = listOfNotNull(
+                uiState.exam.ifBlank { null },
+                uiState.subject.ifBlank { null }
+            ).joinToString(" • ")
+            val bitmap = ScoreCardRenderer.render(
+                examLabel = examLabel.ifBlank { "ExamAI" },
+                score = score,
+                total = total,
+                message = message,
+                emoji = emoji
+            )
+            val imageUri = ScoreCardRenderer.saveToShareableUri(context, bitmap)
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
+                type = "image/png"
+                putExtra(Intent.EXTRA_STREAM, imageUri)
                 putExtra(
                     Intent.EXTRA_TEXT,
                     "I scored $score/$total on ExamAI - Smart Study Assistant! Free exam prep for JEE, NEET & UPSC."
                 )
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             context.startActivity(Intent.createChooser(shareIntent, "Share your score"))
         },
@@ -123,87 +118,100 @@ private fun ResultContent(
     }
 
     GradientBackground(colors = GradientTokens.hero(), animated = true) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = Color.White,
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
                 modifier = Modifier
-                    .size(96.dp)
-                    .scale(trophyScale.value)
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.EmojiEvents,
-                    contentDescription = null,
-                    tint = BrandNavy,
-                    modifier = Modifier.padding(20.dp)
-                )
-            }
-
-            AnimatedCounter(target = score) { animatedScore ->
-                Text(
-                    text = "$animatedScore / $total",
-                    style = MaterialTheme.typography.displayMedium,
-                    fontWeight = FontWeight.ExtraBold,
+                Surface(
+                    shape = CircleShape,
                     color = Color.White,
-                    modifier = Modifier.padding(top = 20.dp)
-                )
-            }
-            Text(
-                text = emoji,
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-            Text(
-                text = message,
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White.copy(alpha = 0.9f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
-            )
+                    modifier = Modifier
+                        .size(96.dp)
+                        .scale(trophyScale.value)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.EmojiEvents,
+                        contentDescription = null,
+                        tint = BrandNavy,
+                        modifier = Modifier.padding(20.dp)
+                    )
+                }
 
-            TextButton(
-                onClick = onShare,
-                modifier = Modifier.padding(bottom = 16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Share,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp)
+                AnimatedCounter(target = score) { animatedScore ->
+                    Text(
+                        text = "$animatedScore / $total",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White,
+                        modifier = Modifier.padding(top = 20.dp)
+                    )
+                }
+                Text(
+                    text = emoji,
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
                 Text(
-                    text = "Share Score",
-                    color = Color.White,
-                    modifier = Modifier.padding(start = 6.dp)
+                    text = message,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White.copy(alpha = 0.9f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
                 )
+
+                TextButton(
+                    onClick = onShare,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = "Share Score",
+                        color = Color.White,
+                        modifier = Modifier.padding(start = 6.dp)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 56.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = if (fromHistory) onBack else onNewTopic,
+                        modifier = Modifier
+                            .weight(1f)
+                            .bounceClick()
+                    ) {
+                        Text(if (fromHistory) "Back" else "New Topic")
+                    }
+                    Button(
+                        onClick = onTryAgain,
+                        modifier = Modifier
+                            .weight(1f)
+                            .bounceClick()
+                    ) {
+                        Text("Try Again")
+                    }
+                }
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            Surface(
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
             ) {
-                OutlinedButton(
-                    onClick = if (fromHistory) onBack else onNewTopic,
-                    modifier = Modifier
-                        .weight(1f)
-                        .bounceClick()
-                ) {
-                    Text(if (fromHistory) "Back" else "New Topic")
-                }
-                Button(
-                    onClick = onTryAgain,
-                    modifier = Modifier
-                        .weight(1f)
-                        .bounceClick()
-                ) {
-                    Text("Try Again")
-                }
+                BannerAdView()
             }
         }
     }

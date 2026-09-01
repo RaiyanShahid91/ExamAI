@@ -27,6 +27,7 @@ import com.ai.studyassistant.ui.screens.OnboardingScreen
 import com.ai.studyassistant.ui.screens.PrivacyPolicyScreen
 import com.ai.studyassistant.ui.screens.QuizScreen
 import com.ai.studyassistant.ui.screens.ResultScreen
+import com.ai.studyassistant.ui.screens.ReviewScreen
 import com.ai.studyassistant.ui.screens.SettingsScreen
 import com.ai.studyassistant.ui.screens.StudyNotesScreen
 import com.ai.studyassistant.ui.screens.SubjectScreen
@@ -36,6 +37,8 @@ import com.ai.studyassistant.viewmodel.BookmarksViewModel
 import com.ai.studyassistant.viewmodel.HistoryViewModel
 import com.ai.studyassistant.viewmodel.NotesViewModel
 import com.ai.studyassistant.viewmodel.QuizViewModel
+import com.ai.studyassistant.viewmodel.ReviewViewModel
+import com.ai.studyassistant.viewmodel.UpdateViewModel
 
 private const val ANIM_DURATION = 300
 
@@ -43,6 +46,7 @@ private const val ANIM_DURATION = 300
 fun NavGraph(
     navController: NavHostController,
     viewModel: QuizViewModel,
+    updateViewModel: UpdateViewModel,
     startDestination: String = Routes.HOME
 ) {
     // One listener covers every screen in the app — logs a screen_view on every
@@ -101,6 +105,10 @@ fun NavGraph(
                     AnalyticsManager.logEvent("bottom_nav_clicked", mapOf("tab" to "bookmarks"))
                     navController.navigate(Routes.BOOKMARKS)
                 },
+                onReviewClick = {
+                    AnalyticsManager.logEvent("review_card_clicked")
+                    navController.navigate(Routes.REVIEW)
+                },
                 onPracticeTopic = { exam, subject, topic ->
                     AnalyticsManager.logEvent(
                         "weak_topic_practice_started",
@@ -123,6 +131,7 @@ fun NavGraph(
 
         composable(Routes.SETTINGS) {
             SettingsScreen(
+                updateViewModel = updateViewModel,
                 onBack = {
                     AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "settings"))
                     navController.popBackStack()
@@ -166,6 +175,17 @@ fun NavGraph(
                 viewModel = bookmarksViewModel,
                 onBack = {
                     AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "bookmarks"))
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.REVIEW) {
+            val reviewViewModel: ReviewViewModel = viewModel()
+            ReviewScreen(
+                viewModel = reviewViewModel,
+                onBack = {
+                    AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "review"))
                     navController.popBackStack()
                 }
             )

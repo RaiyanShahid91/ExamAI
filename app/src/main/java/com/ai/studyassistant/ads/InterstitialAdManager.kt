@@ -21,7 +21,7 @@ object InterstitialAdManager {
     @Volatile private var isLoading = false
 
     fun preload(context: Context) {
-        if (!ConsentManager.adsReady.value || interstitialAd != null || isLoading) return
+        if (!ADS_ENABLED || !ConsentManager.adsReady.value || interstitialAd != null || isLoading) return
         isLoading = true
         InterstitialAd.load(
             context,
@@ -47,6 +47,10 @@ object InterstitialAdManager {
     }
 
     fun showIfAvailable(activity: Activity, onDismissed: () -> Unit = {}) {
+        if (!ADS_ENABLED) {
+            onDismissed()
+            return
+        }
         val ad = interstitialAd
         if (ad == null) {
             onDismissed()

@@ -14,6 +14,7 @@ import com.ai.studyassistant.data.repository.AnalyticsRepository
 import com.ai.studyassistant.data.repository.BookmarkRepository
 import com.ai.studyassistant.data.repository.ExamHistoryRepository
 import com.ai.studyassistant.data.repository.QuestionRepository
+import com.ai.studyassistant.data.repository.ReviewRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,6 +54,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
     private val historyRepository = ExamHistoryRepository(application)
     private val analyticsRepository = AnalyticsRepository(application)
     private val bookmarkRepository = BookmarkRepository(application)
+    private val reviewRepository = ReviewRepository(application)
     private val wikipediaService = WikipediaService.create()
 
     private val _uiState = MutableStateFlow(QuizUiState())
@@ -91,6 +93,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         timed: Boolean = false
     ) {
         timerJob?.cancel()
+        InterstitialAdManager.preload(getApplication())
         _uiState.value = QuizUiState(isLoading = true, exam = exam, subject = subject, topic = topic)
         viewModelScope.launch {
             repository.getQuiz(exam, subject, topic, difficulty)
@@ -133,6 +136,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadMockExam(exam: String, timed: Boolean = true) {
         timerJob?.cancel()
+        InterstitialAdManager.preload(getApplication())
         val subject = "All Subjects"
         val topic = "Mock Test"
         _uiState.value = QuizUiState(isLoading = true, exam = exam, subject = subject, topic = topic)
@@ -177,6 +181,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
 
     fun resumeAttempt(attemptId: Long) {
         timerJob?.cancel()
+        InterstitialAdManager.preload(getApplication())
         _uiState.value = QuizUiState(isLoading = true)
         viewModelScope.launch {
             val attempt = historyRepository.getAttempt(attemptId)
@@ -267,6 +272,11 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
             "answer_selected",
             mapOf("exam" to state.exam, "subject" to state.subject, "topic" to state.topic, "correct" to isCorrect)
         )
+        if (!isCorrect) {
+            viewModelScope.launch {
+                reviewRepository.upsertOnWrongAnswer(state.exam, state.subject, state.topic, question)
+            }
+        }
         val attemptId = state.attemptId ?: return
         viewModelScope.launch {
             historyRepository.recordAnswer(attemptId, state.currentIndex, index)
@@ -304,7 +314,6 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
 
     fun finishAttempt() {
         timerJob?.cancel()
-        InterstitialAdManager.preload(getApplication())
         val attemptId = _uiState.value.attemptId ?: return
         viewModelScope.launch {
             historyRepository.finishAttempt(attemptId)

@@ -13,9 +13,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         CachedQuestionEntity::class,
         SavedNoteEntity::class,
         ExamAttemptEntity::class,
-        BookmarkedQuestionEntity::class
+        BookmarkedQuestionEntity::class,
+        ReviewItemEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -25,6 +26,7 @@ abstract class QuizDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun examAttemptDao(): ExamAttemptDao
     abstract fun bookmarkDao(): BookmarkDao
+    abstract fun reviewDao(): ReviewDao
 
     companion object {
         @Volatile private var INSTANCE: QuizDatabase? = null
@@ -73,13 +75,36 @@ abstract class QuizDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `review_items` (
+                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        `exam` TEXT NOT NULL,
+                        `subject` TEXT NOT NULL,
+                        `topic` TEXT NOT NULL,
+                        `question` TEXT NOT NULL,
+                        `options` TEXT NOT NULL,
+                        `correct` INTEGER NOT NULL,
+                        `explanation` TEXT NOT NULL,
+                        `box` INTEGER NOT NULL,
+                        `dueAt` INTEGER NOT NULL,
+                        `lastReviewedAt` INTEGER,
+                        `createdAt` INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         fun getInstance(context: Context): QuizDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     QuizDatabase::class.java,
                     "exam_ai.db"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build().also { INSTANCE = it }
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build().also { INSTANCE = it }
             }
     }
 }
