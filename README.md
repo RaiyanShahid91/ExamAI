@@ -1,230 +1,117 @@
-# ExamAI - Smart Study Assistant 🎓
+# ExamAI: JEE NEET UPSC CAT Prep
 
-![Android](https://img.shields.io/badge/Platform-Android-green)
-![Kotlin](https://img.shields.io/badge/Language-Kotlin-purple)
-![Free](https://img.shields.io/badge/Cost-100%25%20Free-brightgreen)
-![API](https://img.shields.io/badge/API-26%2B-blue)
+![ExamAI study tools](store-assets/feature_graphic.png)
 
-A completely FREE Android app for Indian students preparing for 
-JEE, NEET, and UPSC exams. No subscriptions, no login, 
-no API keys — just open and start studying!
+![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-green)
+![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-purple)
+![Version](https://img.shields.io/badge/Version-1.2.4-blue)
 
----
+Build a study routine that fits your day. ExamAI brings practice questions, timed mock tests, flashcards, notes and progress tracking into one easy-to-use Android app for students preparing for Indian competitive exams. Start studying without creating an account.
 
-## 📸 Screenshots
+**[Get ExamAI on Google Play](https://play.google.com/store/apps/details?id=com.ai.studyassistant)** · [Learn on Brynflow](https://brynflow.com/exams) · [Privacy Policy](PRIVACY_POLICY.md) · [Contact support](mailto:contact@brynflow.com)
 
-<p align="center">
-<img width="200" height="433" alt="Screenshot_20260622_191411" src="https://github.com/user-attachments/assets/81b26611-9833-416e-8c34-1c670d74a78b" />
-<img width="200" height="433" alt="Screenshot_20260622_191358" src="https://github.com/user-attachments/assets/33cfd666-59f1-4e09-84af-f2adc5a65269" />
-<img width="200" height="433" alt="Screenshot_20260622_191346" src="https://github.com/user-attachments/assets/d272b674-72a3-4be0-8a6e-f9a1961e29dc" />
-<img width="200" height="433" alt="Screenshot_20260622_191337" src="https://github.com/user-attachments/assets/833f2a64-3b8e-4f86-83d7-4ba6383b0f36" />
-<img width="200" height="433" alt="Screenshot_20260622_191306" src="https://github.com/user-attachments/assets/f74ca735-13ae-4051-9b50-f2299a9dcd74" />
-</p>
+The app is free to use and contains banner, interstitial and optional rewarded ads. This repository contains version **1.2.4 (13)**; availability of updates on Google Play depends on review and rollout.
 
+## See what you can do
 
+These eight store images show the refreshed interface and study tools. Promotional images contain no ads; progress screens use example study data.
 
----
+| Start studying | Choose your exam |
+| --- | --- |
+| ![Welcome to ExamAI](store-assets/phone/01_welcome.png) | ![Exam selection for competitive exam preparation](store-assets/phone/02_exams.png) |
+| **Practise questions** | **Plan your day** |
+| ![Question practice and explanations](store-assets/phone/03_practice.png) | ![Daily study plan and exam countdown](store-assets/phone/04_plan.png) |
+| **Revise with flashcards** | **Save useful notes** |
+| ![Flashcards for revision](store-assets/phone/05_flashcards.png) | ![Topic notes for study and revision](store-assets/phone/06_notes.png) |
+| **Understand your progress** | **Choose your language** |
+| ![Insights with accuracy and study progress](store-assets/phone/07_insights.png) | ![Ten interface languages](store-assets/phone/08_languages.png) |
 
-## ✨ Features
+[Browse the image gallery source](store-assets/preview.html) · [Store descriptions and image details](store-assets/README.md)
 
-- **Indian Languages** — Use English, Hindi, Bengali, Marathi, Telugu, Tamil, Urdu, Kannada, Malayalam or Gujarati. Choose a language in Settings or the welcome tour; Urdu supports right-to-left layout. Questions, subject/topic names and information/legal pages remain in English. See [localization notes](LOCALIZATION.md).
-- **Personalized Appearance** — Choose Ocean, Violet, Forest, Rose or Amber with light, dark or system mode. Change your look in Settings or the refreshed welcome tour; preferences are saved locally.
-- **Daily Study Planner** — Set your exam and a daily goal of 5–50 questions from the home screen. Get a topic recommendation based on earlier quiz results, open due reviews, and track progress automatically from completed quizzes. Goals are saved locally and progress resets at local midnight.
+## Study tools
 
-- 🎯 **3 Exams Covered** — JEE, NEET, UPSC
-- 📚 **200+ MCQ Questions** — Curated real exam-level questions
-- 🌐 **Live Questions** — Fetches fresh questions from Open Trivia DB
-- 📖 **Study Notes** — Topic summaries powered by Wikipedia
-- 📴 **Offline Mode** — Works without internet after first use
-- 🌙 **Dark Mode** — Easy on eyes during night study
-- ⚡ **No Login Required** — Just install and start
-- 💰 **Completely Free** — No hidden charges ever
+- **Practice and mock tests:** choose an exam and subject, answer questions with feedback and explanations, bookmark questions and resume unfinished attempts.
+- **Daily goals and countdown:** set a goal of 5–50 questions, add an optional exam date and see a suggested practice pace. Completed quizzes update your progress.
+- **Review and flashcards:** revisit missed questions through spaced review, or flip through missed and bookmarked questions in a revision session.
+- **Study notes:** search Wikipedia topic summaries and save notes for offline reading. Two free searches replenish daily; an optional rewarded ad adds two searches. Unused earned searches persist, and failed searches consume no credit.
+- **Insights and history:** track accuracy, study days, streaks, badges and topics needing practice. Revisit reports, share score cards and export completed quiz history as CSV.
+- **Reminders and widget:** create personal reminders, opt into daily study nudges and add a home-screen widget for your streak and reviews due.
+- **Appearance and onboarding:** follow a five-page welcome tour, choose one of five colour themes and use light, dark or system mode.
+- **Offline study:** use bundled questions, previously loaded content, saved notes, flashcards and local study records without internet. New online content and note searches require a connection.
 
----
+## Exams and subjects
 
-## 📚 Subjects Covered
+| Exam | Subjects |
+| --- | --- |
+| JEE | Physics, Chemistry, Mathematics |
+| NEET | Physics, Chemistry, Biology |
+| UPSC | History, Geography, Polity, Economy |
+| SSC | General Awareness, Quantitative Aptitude, Reasoning |
+| Banking | Quantitative Aptitude, Reasoning, Banking Awareness |
+| CAT | Quantitative Ability, Verbal Ability, Data Interpretation & Logical Reasoning |
+| CDS/NDA | Mathematics, General Knowledge, English |
 
-### 🔬 JEE (Engineering)
-- Physics (40 Questions)
-- Chemistry (40 Questions)  
-- Mathematics (40 Questions)
+Available question counts and mock lengths vary by subject. Topic and difficulty choices do not guarantee strict matching for every question. ExamAI is an independent supplementary practice app, is not affiliated with exam authorities and does not provide official past papers or guarantee exam results.
 
-### 🧬 NEET (Medical)
-- Biology (40 Questions)
-- Physics (20 Questions)
-- Chemistry (20 Questions)
+## Languages
 
-### 🏛️ UPSC (Civil Services)
-- History (30 Questions)
-- Polity (30 Questions)
-- Geography (30 Questions)
-- Economy (coming soon)
+Use the interface in **English, Hindi, Bengali, Marathi, Telugu, Tamil, Urdu, Kannada, Malayalam or Gujarati**. Change the language during onboarding or in Settings; Urdu supports right-to-left layout.
 
----
+Questions, subject/topic names, fetched study content and legal/information pages remain in English. Translation drafts still need native-speaker review. See [LOCALIZATION.md](LOCALIZATION.md) for scope and maintenance.
 
-## 🛠️ Built With
+## Privacy, ads and reminders
 
-| Technology | Purpose |
-|---|---|
-| Kotlin | Primary programming language |
-| Jetpack Compose | Modern UI toolkit |
-| Material 3 | Design system |
-| MVVM Architecture | Code structure |
-| Retrofit + OkHttp | Network calls |
-| Room Database | Offline storage |
-| Open Trivia DB API | Free live MCQ questions |
-| Wikipedia REST API | Topic explanations |
-| Jsoup | Web content parsing |
-| Coroutines + StateFlow | Async operations |
-| Claude Code (AI) | Used to build this app |
+Study records, saved notes, reminders and preferences are stored on the device; Android backups may copy them according to device settings. Online content providers, Google AdMob, Firebase Analytics and Crashlytics process information described in the [Privacy Policy](PRIVACY_POLICY.md). The in-app policy at `app/src/main/assets/privacy_policy.md` must stay identical to the root policy.
 
----
+Ads are requested when Google's UMP consent SDK permits them. Settings exposes ad privacy choices when required. Optional rewarded ads can provide two extra note searches or a **15-minute break from banners and interstitials**. Quiz completion may show an interstitial, with a three-minute cooldown after fullscreen ads. Debug builds use Google test ad units; release builds use the verified ExamAI inventory.
 
-## 🚀 How to Run Locally
+Daily study nudges require opt-in and target 10 AM and 8 PM in local time. Personal reminders support a title, optional note and a scheduled time. Notification permission is required; Android may delay delivery. Optional Alarms & reminders access supports precise personal reminders. Schedules restore after restart, updates and clock/timezone changes.
 
-### Prerequisites
-- Android Studio Hedgehog or later
-- Android SDK 26+
-- Internet connection for first launch
+## Build and run
 
-### Steps
+Use Android Studio with **JDK 17**, Android SDK **36**, and an Android device or emulator running **API 26+**. Internet is needed to resolve build dependencies and use online app features.
 
-1. Clone the repository
-   git clone https://github.com/yourusername/ExamAI.git
+```sh
+git clone https://github.com/RaiyanShahid91/ExamAI.git
+cd ExamAI
+```
 
-2. Open in Android Studio
-   File → Open → Select the ExamAI folder
+Open the project in Android Studio, let Gradle sync, then run the `app` configuration. Alternatively:
 
-3. Sync Gradle
-   Click "Sync Now" when prompted
+```sh
+./gradlew assembleDebug
+```
 
-4. Run the app
-   Click the green Run button or press Shift+F10
+Firebase configuration is in `app/google-services.json`; use your own Firebase project when maintaining a fork. Configure your own AdMob app ID and release ad units before publishing a fork. Keep signing credentials and `local.properties` out of version control.
 
-5. That's it! No API keys needed.
+## Technology and project layout
 
----
+Kotlin, Jetpack Compose, Material 3, MVVM, Coroutines/StateFlow, Room, WorkManager, Retrofit/OkHttp, Firebase Analytics/Crashlytics, Google Mobile Ads and UMP. Online study content uses Open Trivia DB and Wikipedia.
 
-## 📡 APIs Used (All Free)
+```text
+app/src/main/
+├── java/com/ai/studyassistant/
+│   ├── ads/             # Consent, ad units and reward handling
+│   ├── data/            # Models, local storage, APIs and repositories
+│   ├── i18n/            # Interface language selection
+│   ├── navigation/      # Routes and navigation actions
+│   ├── notification/    # Daily and personal reminders
+│   ├── ui/              # Compose screens, components, themes and utilities
+│   ├── viewmodel/       # Screen state and study logic
+│   └── widget/          # Home-screen study widget
+├── assets/              # Bundled content and privacy policy
+└── res/                 # Translations and Android resources
+store-assets/            # Store descriptions, graphics and source captures
+```
 
-| API | Usage | Cost |
-|---|---|---|
-| Open Trivia DB | Live MCQ questions | Free forever |
-| Wikipedia REST API | Topic summaries | Free forever |
-| NCERT Website | Study content | Free forever |
+## Verification and contributing
 
----
+```sh
+./gradlew testReleaseUnitTest lintRelease
+```
 
-## 🏗️ Project Structure
+The latest pre-push release check passed **62 JVM tests** and release lint with warnings. Device tests cover core study flows, onboarding, languages and reminders; detailed results and limitations are in [QA_REPORT.md](QA_REPORT.md).
 
-ExamAI/
-├── app/src/main/
-│   ├── java/com/examai/
-│   │   ├── MainActivity.kt
-│   │   ├── navigation/
-│   │   │   └── NavGraph.kt
-│   │   ├── ui/screens/
-│   │   │   ├── HomeScreen.kt
-│   │   │   ├── SubjectScreen.kt
-│   │   │   ├── TopicScreen.kt
-│   │   │   ├── QuizScreen.kt
-│   │   │   ├── ResultScreen.kt
-│   │   │   └── StudyNotesScreen.kt
-│   │   ├── ui/theme/
-│   │   │   ├── Theme.kt
-│   │   │   └── Color.kt
-│   │   ├── data/
-│   │   │   ├── model/
-│   │   │   ├── api/
-│   │   │   ├── local/
-│   │   │   └── repository/
-│   │   └── viewmodel/
-│   └── assets/
-│       └── questions.json
-└── README.md
+For contributions, fork the repository, create a feature branch, make your changes and open a pull request. Include relevant validation and screenshots for UI changes.
 
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Here's how:
-
-1. Fork the project
-2. Create your feature branch
-   git checkout -b feature/AmazingFeature
-3. Commit your changes
-   git commit -m 'Add some AmazingFeature'
-4. Push to the branch
-   git push origin feature/AmazingFeature
-5. Open a Pull Request
-
----
-
-## 📋 Roadmap
-
-- [ ] Add GATE exam support
-- [x] Hindi and eight additional Indian UI languages
-- [ ] Video links for each topic
-- [ ] Leaderboard between friends
-- [ ] Daily streak system
-- [ ] Performance analytics
-
----
-
-## 👨‍💻 Built By
-
-**Raiyan Shahid**  
-**contact@brynflow.com**
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
-Free to use, modify, and distribute.
-
----
-
-## Learn on Brynflow
-
-Continue your exam preparation at [Brynflow Exam Prep](https://brynflow.com/exams). You can also open it from Home, Study Notes, exam subjects, Settings, and About in the app.
-
-For support, email [contact@brynflow.com](mailto:contact@brynflow.com).
-
-## ⭐ Support
-
-If this app helped you, please give it a ⭐ on GitHub!
-It motivates me to add more features.
-
-## Advertising placements
-
-- Browsing screens retain banner ads; quiz completion may show an interstitial, with at least three minutes between full-screen ad dismissals and the next interstitial.
-- Home, Results and Settings offer an optional rewarded ad for a 15-minute break from banners and interstitials. The reward persists across restarts until its expiry.
-- Notes offers an explicit rewarded-ad button for two additional searches. Two free searches replenish daily; unused earned searches persist. Failed searches consume no credit, and saved notes are always accessible.
-- Ads require the UMP consent SDK to allow requests. Settings exposes ad privacy choices when required.
-- Debug builds use Google test ad units. Release builds retain the configured production units. No new AdMob console units were created; rewarded placements reuse the existing rewarded inventory.
-- Firebase events record ad impressions/rewards by placement and SDK paid events (`ad_revenue`, including currency and value in micros). Actual earnings and serving approval must be checked in AdMob.
-
-## Study reminders
-
-Open the calendar icon on Home, or Settings → My reminders.
-
-- Daily study reminders are off until the user explicitly enables them. They target 10 AM and 8 PM in the device's local timezone. They suggest an unfinished quiz, due reviews or a recently practiced topic, and skip nudges while the app is in use. A delayed daily reminder is suppressed outside its morning/evening window.
-- Personal reminders have a title, optional note and a one-time date/time. Users can edit, delete or schedule them again. Titles and notes stay in the local Room database.
-- Notification taps open the relevant study screen or personal reminder list. Notifications have separate daily/personal channels and private lock-screen content.
-- Schedules restore after restart, app updates and clock/timezone changes. The Room 4→5 migration preserves existing study data.
-- Notification permission is required. Android may delay daily reminders; optional Alarms & reminders access enables precise personal reminders. Notifications cannot bypass Android force-stop or manufacturer restrictions.
-
-## Notification policy review (November 1, 2026)
-
-- Notification permission is requested on the first app opening and retried on later openings when denied. Android may stop displaying the runtime dialog after repeated denials; a dismissible settings explanation handles that case. Requests are limited to one per app-opening session, and returning from notification settings does not immediately prompt again. Enabling notification access does not opt the user into daily nudges.
-- Daily nudges require a fresh opt-in to the current twice-daily schedule. They are capped at the morning/evening slots, have an immediate notification opt-out action, and contain no ads or website promotions.
-- Daily scheduling remains inexact. Only user-created personal reminders may use the user-granted SCHEDULE_EXACT_ALARM special access. No USE_EXACT_ALARM or USE_FULL_SCREEN_INTENT permission is requested.
-- The in-app Privacy policy reads `app/src/main/assets/privacy_policy.md`, which must stay identical to `PRIVACY_POLICY.md`.
-- Before release, publish this policy at the public privacy-policy URL configured in Play Console. Reconcile Data safety with AdMob, Firebase Analytics/Crashlytics and the actual SDK configuration; confirm target-audience/Families declarations. These external console/hosting settings were not changed by this code update, and store approval is not guaranteed.
-
-References reviewed:
-https://developer.android.com/develop/ui/compose/notifications/notification-permission
-https://developer.android.com/develop/background-work/services/alarms
-https://support.google.com/googleplay/android-developer/answer/16558241
-https://support.google.com/googleplay/android-developer/answer/10144311
+Built by **Raiyan Shahid** · [Brynflow](https://brynflow.com/exams) · [contact@brynflow.com](mailto:contact@brynflow.com)
