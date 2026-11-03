@@ -21,8 +21,10 @@ import com.ai.studyassistant.ui.screens.AboutScreen
 import com.ai.studyassistant.ui.screens.AiInfoScreen
 import com.ai.studyassistant.ui.screens.AttemptDetailScreen
 import com.ai.studyassistant.ui.screens.BookmarksScreen
+import com.ai.studyassistant.ui.screens.FlashcardsScreen
 import com.ai.studyassistant.ui.screens.HistoryScreen
 import com.ai.studyassistant.ui.screens.HomeScreen
+import com.ai.studyassistant.ui.screens.InsightsScreen
 import com.ai.studyassistant.ui.screens.OnboardingScreen
 import com.ai.studyassistant.ui.screens.PrivacyPolicyScreen
 import com.ai.studyassistant.ui.screens.QuizScreen
@@ -34,7 +36,9 @@ import com.ai.studyassistant.ui.screens.SubjectScreen
 import com.ai.studyassistant.ui.screens.TermsAndConditionsScreen
 import com.ai.studyassistant.ui.screens.TopicScreen
 import com.ai.studyassistant.viewmodel.BookmarksViewModel
+import com.ai.studyassistant.viewmodel.FlashcardsViewModel
 import com.ai.studyassistant.viewmodel.HistoryViewModel
+import com.ai.studyassistant.viewmodel.InsightsViewModel
 import com.ai.studyassistant.viewmodel.NotesViewModel
 import com.ai.studyassistant.viewmodel.QuizViewModel
 import com.ai.studyassistant.viewmodel.ReviewViewModel
@@ -93,6 +97,15 @@ fun NavGraph(
                     AnalyticsManager.logEvent("bottom_nav_clicked", mapOf("tab" to "notes"))
                     navController.navigate(Routes.NOTES)
                 },
+                onRemindersClick = { navController.navigate(Routes.REMINDERS) },
+                onInsightsClick = {
+                    AnalyticsManager.logEvent("insights_opened")
+                    navController.navigate(Routes.INSIGHTS)
+                },
+                onFlashcardsClick = {
+                    AnalyticsManager.logEvent("flashcards_opened")
+                    navController.navigate(Routes.FLASHCARDS)
+                },
                 onSettingsClick = {
                     AnalyticsManager.logEvent("bottom_nav_clicked", mapOf("tab" to "settings"))
                     navController.navigate(Routes.SETTINGS)
@@ -121,12 +134,20 @@ fun NavGraph(
 
         composable(Routes.ONBOARDING) {
             OnboardingScreen(
+                onPrivacyClick = { navController.navigate(Routes.PRIVACY_POLICY) { launchSingleTop = true } },
                 onFinish = {
+                    val isTour = navController.previousBackStackEntry != null
                     navController.navigate(Routes.HOME) {
-                        popUpTo(Routes.ONBOARDING) { inclusive = true }
+                        popUpTo(if (isTour) Routes.HOME else Routes.ONBOARDING) { inclusive = !isTour }
+                        launchSingleTop = true
                     }
                 }
             )
+        }
+
+        composable(Routes.REMINDERS) {
+            val remindersViewModel: com.ai.studyassistant.viewmodel.RemindersViewModel = viewModel()
+            com.ai.studyassistant.ui.screens.RemindersScreen(remindersViewModel, onBack = { navController.popBackStack() })
         }
 
         composable(Routes.SETTINGS) {
@@ -148,6 +169,8 @@ fun NavGraph(
                     AnalyticsManager.logEvent("settings_row_clicked", mapOf("row" to "privacy"))
                     navController.navigate(Routes.PRIVACY_POLICY)
                 },
+                onRemindersClick = { navController.navigate(Routes.REMINDERS) },
+                onWelcomeTour = { navController.navigate(Routes.ONBOARDING) },
                 onAiInfoClick = {
                     AnalyticsManager.logEvent("settings_row_clicked", mapOf("row" to "ai_info"))
                     navController.navigate(Routes.AI_INFO)
@@ -187,6 +210,35 @@ fun NavGraph(
                 onBack = {
                     AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "review"))
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.FLASHCARDS) {
+            val flashcardsViewModel: FlashcardsViewModel = viewModel()
+            FlashcardsScreen(
+                viewModel = flashcardsViewModel,
+                onBack = {
+                    AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "flashcards"))
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.INSIGHTS) {
+            val insightsViewModel: InsightsViewModel = viewModel()
+            InsightsScreen(
+                viewModel = insightsViewModel,
+                onBack = {
+                    AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "insights"))
+                    navController.popBackStack()
+                },
+                onPracticeTopic = { exam, subject, topic ->
+                    AnalyticsManager.logEvent(
+                        "weak_topic_practice_started",
+                        mapOf("exam" to exam, "subject" to subject, "topic" to topic)
+                    )
+                    navController.navigate(Routes.quiz(exam, subject, topic))
                 }
             )
         }
@@ -364,7 +416,7 @@ fun NavGraph(
                         )
                     )
                     navController.navigate(Routes.quiz(exam, subject, topic, difficulty, timed)) {
-                        popUpTo(Routes.QUIZ) { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
             )
@@ -408,7 +460,9 @@ fun NavGraph(
                             "score" to state.score, "total" to state.questions.size
                         )
                     )
-                    navController.navigate(Routes.result(exam, subject, topic))
+                    navController.navigate(Routes.result(exam, subject, topic)) {
+                        popUpTo(Routes.QUIZ) { inclusive = true }
+                    }
                 }
             )
         }
@@ -438,21 +492,18 @@ fun NavGraph(
                         }
                     } else {
                         navController.navigate(Routes.quiz(exam, subject, topic)) {
-                            popUpTo(if (fromHistory) Routes.RESULT else Routes.QUIZ) { inclusive = true }
+                            popUpTo(Routes.RESULT) { inclusive = true }
                         }
                     }
                 },
                 onNewTopic = {
                     AnalyticsManager.logEvent("result_new_topic", mapOf("exam" to exam, "subject" to subject))
-                    navController.popBackStack(Routes.TOPIC, inclusive = false)
+                    navController.returnToOrOpen(Routes.topic(exam, subject))
                 },
                 onBack = {
                     AnalyticsManager.logEvent("back_pressed", mapOf("screen" to "result"))
-                    if (isMockExam) {
-                        navController.popBackStack(Routes.SUBJECT, inclusive = false)
-                    } else {
-                        navController.popBackStack(Routes.HISTORY, inclusive = false)
-                    }
+                    val target = if (fromHistory) Routes.HISTORY else if (isMockExam) Routes.subject(exam) else Routes.topic(exam, subject)
+                    navController.returnToOrOpen(target)
                 }
             )
         }

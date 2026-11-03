@@ -19,6 +19,8 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.delay
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
 
 /** Scales a clickable composable down slightly on press, for tactile feedback on cards/buttons. */
 fun Modifier.bounceClick(): Modifier = composed {

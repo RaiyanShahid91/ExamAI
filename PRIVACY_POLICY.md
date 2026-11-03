@@ -1,284 +1,122 @@
 # Privacy Policy — ExamAI Smart Study Assistant
 
-**Last Updated:** August 9, 2026  
-**Effective Date:** June 22, 2026  
-**Developer:** Raiyan Shahid  
-**App Name:** ExamAI – Smart Study Assistant  
-**Package Name:** com.ai.studyassistant  
-**Contact Email:** raiyannshahid@gmail.com
+Last updated: November 3, 2026 (app version 1.2.3)
 
----
+App: ExamAI – Smart Study Assistant (com.ai.studyassistant)
+Developer: Raiyan Shahid
+Support and privacy contact: contact@brynflow.com
+Website: https://brynflow.com/exams
 
-## 1. Introduction
+## 1. About this policy
 
-Welcome to ExamAI – Smart Study Assistant ("we", "our", or "us").  
-This Privacy Policy explains how our Android application 
-("ExamAI" or "the App") handles your information when you 
-use it on your Android device.
+This policy explains the information used by ExamAI for quizzes, study plans, revision, flashcards, notes, progress insights, reminders, language settings and sharing, as well as the third-party services included in the app. No account is required. Our app uses Google AdMob, Firebase Analytics and Firebase Crashlytics; these services process information as described below. The sections below describe their data processing alongside the app’s local storage.
 
-We are committed to protecting your privacy. ExamAI does not require 
-an account, does not collect personal information, and stores your 
-quiz history, bookmarks, and notes only on your own device.
+Your saved study records are held on your device, while content providers, advertising, analytics and crash-reporting services can receive the information described below. Local storage does not mean the app has no network activity or third-party data processing.
 
-Please read this policy carefully. By using ExamAI, you agree 
-to the terms described in this Privacy Policy.
+Reading or using the app does not itself grant notification permission, advertising consent, or precise alarm access. Those choices have separate controls.
 
----
+## 2. Study data stored on your device
 
-## 2. Information We Do NOT Collect
+The app stores quiz attempts and answers, scores, unfinished quizzes, bookmarks, cached questions, saved study notes, revision schedules, daily study goals, your optional exam date, theme choices, app language and other preferences in its local database or preference files.
 
-ExamAI itself does **not** collect any of the following:
+**Study plans and exam dates.** Your selected exam, daily question goal and optional exam date are saved locally. The app combines them with saved quiz and review records to show daily progress, a countdown and a suggested practice pace. The suggestion is a study-planning aid, not an official exam schedule or a prediction of your result. You can change the goal, change the date or clear the exam date from the daily-plan editor.
 
-- ❌ Name, email address, or phone number
-- ❌ Location or GPS data
-- ❌ Camera or microphone access
-- ❌ Contacts or call logs
-- ❌ Photos or media files
-- ❌ Financial or payment information
-- ❌ Login credentials or passwords
-- ❌ Browsing history
-- ❌ Any personally identifiable information (PII)
+**Revision and flashcards.** Missed questions are saved for spaced revision, with review history and due dates. Flashcards are assembled on your device from missed and bookmarked questions, including the question, options, correct answer, explanation and exam/subject/topic labels. A flashcard session keeps its current queue and learned/retry counts in memory; choosing “Got it” only retires the card from that session. It does not delete the source question or change its spaced-review schedule. The app does not upload a flashcard deck to a generative-AI or translation service.
 
-The exceptions are the advertising ID (used by Google AdMob — see 
-**Section 6, Advertising**) and an anonymous Firebase installation 
-identifier (used for crash reporting and app analytics — see 
-**Section 7, Analytics & Crash Reporting**). Neither is tied to your 
-name or any other personal identity.
+**Progress insights.** Counts, accuracy, practice days, streaks, weak-topic suggestions and achievement badges are calculated on your device from saved quiz attempts. These local calculations are separate from Firebase usage analytics described in section 7. They are study aids and are not shared automatically as a report or CSV export.
 
----
+**Language and appearance.** Your chosen language, color palette and light/dark/system mode are preferences. Android 13 and later manages the app-language selection through its per-app language service; older Android versions store the language choice in the app's preferences. Interface translations are bundled with the app, so choosing a language does not send text to an online translation service. Questions, subject/topic names, fetched study content and legal/information pages may remain in English. Language selection is not an advertising or analytics opt-out.
 
-## 3. Information Stored Locally On Your Device
+Personal reminders store the title and optional note you enter, the selected date/time, an identifier and delivery status. Daily-reminder preferences and the last delivery date for each daily slot are also stored locally. Search allowances and the expiry of earned ad-free periods are saved locally.
 
-ExamAI stores the following data **only on your device** using 
-Room Database (local storage). This data never leaves your phone:
+We do not operate a server that receives your personal reminder titles, notes or schedules. Reminder notifications are scheduled on your device, not sent by a remote push-notification service. The operating system uses notification content to display the reminder. The app allows Android backup and device transfer and does not exclude any of its data, so Google Drive backup or a device-to-device transfer may copy locally stored app data (such as your study history, notes and reminders) according to your device settings and the applicable platform policies; local storage is not a promise that device backups never occur.
 
-| Data | Purpose | Stored Where |
-|---|---|---|
-| Quiz attempts, scores & history | Track your progress | Your device only |
-| Bookmarked questions | Review later | Your device only |
-| Cached questions | Offline mode support | Your device only |
-| Study notes | Save for later reading | Your device only |
-| App preferences | Theme, notification settings | Your device only |
+Avoid entering sensitive information in a reminder. Notifications use private lock-screen visibility and a generic public preview; what is visible also depends on your device's notification settings.
 
-You can delete all this data at any time by uninstalling the app.
+## 3. Notifications and your choices
 
----
+Daily study reminders are optional and off until you enable them in Settings or My reminders. Enabling notifications for a personal reminder does not automatically enable daily study nudges. Earlier app-level permission grants are not treated as consent to the new daily schedule.
 
-## 4. Internet Permission & Third Party APIs
+If you enable daily reminders, we schedule up to two study notifications per day, targeting 10 AM and 8 PM in your device's local timezone. Their content may use your locally stored unfinished quiz, due revision questions or recently practiced topic to suggest a useful next step. We skip these nudges while the app is in use and suppress substantially delayed daily reminders outside their morning/evening window. We do not use notification content to serve ads, rewarded-ad offers or website promotions.
 
-ExamAI requires internet access to fetch fresh study content and ads. 
-We use the following **free, public APIs**:
+Personal reminders send one notification for each reminder you create at the date/time you choose. You can edit, delete or schedule a delivered reminder again. Personal reminders are independent of the daily-reminder switch. Tapping a notification opens the relevant study screen or reminder list; it does not automatically open a website or rewarded ad.
 
-### 4.1 Open Trivia Database (opentdb.com)
-- **What we fetch:** MCQ questions for practice
-- **What we send:** Only the topic/category name
-- **Their privacy policy:** https://opentdb.com/
+On Android 13 and later, notifications require your permission. The app requests notification permission on the first opening and may ask again on a later opening if access was denied. It does not repeatedly request permission within the same app session. When Android no longer permits the system dialog, a dismissible explanation offers a link to notification settings. Returning from that settings screen does not immediately show another prompt. You may also enable notifications when setting up a reminder. Declining permission does not prevent quizzes, notes or other study features. You can disable daily reminders in the app or with the notification's “Turn off daily reminders” action, delete personal reminders, or turn off either notification channel or all notifications in Android settings.
 
-### 4.2 Wikipedia REST API (wikipedia.org)
-- **What we fetch:** Topic summaries for study notes
-- **What we send:** Only the topic name you searched
-- **Their privacy policy:** https://wikimediafoundation.org/privacy-policy/
+Android can delay notification delivery because of battery restrictions, force-stop, disabled channels or other system conditions. Daily reminders use inexact scheduling. Personal reminders can use precise scheduling only where supported and permitted. The optional “Allow precise timing” button opens Android's Alarms & reminders access screen; without access, reminders remain available with potentially delayed delivery. We do not request the restricted USE_EXACT_ALARM permission or full-screen notification access. Saved schedules are restored after restart, app updates and relevant clock/timezone changes without re-enabling opted-out daily reminders.
 
-### 4.3 NCERT Website (ncert.nic.in)
-- **What we fetch:** Free textbook content
-- **What we send:** Only chapter/subject names
-- **Their privacy policy:** https://ncert.nic.in/
+## 4. Permissions and platform services
 
-**Important:** We do not send any personal information to any 
-of these APIs. Only topic or subject names are sent as part 
-of the content request.
+- INTERNET and ACCESS_NETWORK_STATE support content retrieval, ads and the other network services described here.
+- POST_NOTIFICATIONS is optional on Android 13 and later and supports the reminders you choose.
+- RECEIVE_BOOT_COMPLETED restores pending schedules after a restart.
+- SCHEDULE_EXACT_ALARM is optional special access for precisely timed personal reminders. Daily engagement reminders do not use exact alarms.
+- Bundled Google SDKs may declare additional platform permissions, including advertising-ID and network-related permissions, for their documented functions.
 
----
+The app does not request access to your contacts, microphone, camera, SMS or precise device location for its study/reminder features.
 
-## 5. No User Accounts
+## 5. Content requests, sharing and app updates
 
-ExamAI does **not** require you to:
-- Create an account
-- Log in with Google, Facebook, or any service
-- Provide an email address
-- Verify your phone number
+Open Trivia Database provides quiz content, Wikipedia provides topic summaries, and the app may request content from NCERT. Requests can include the category, subject or topic/search term and normal network metadata such as your IP address and app user-agent. These providers process requests under their own policies.
 
-You can use the full app anonymously from the moment you install it.
+The app may read the NCERT textbook index page to find chapter links. Those requests do not attach your saved answers, exam date or reminder records, but the provider can still receive normal network metadata. Public-source content is supplementary study material, not a promise of official or previously asked exam questions.
 
----
+Provider information:
+https://opentdb.com/
+https://foundation.wikimedia.org/wiki/Policy:Privacy_policy
+https://ncert.nic.in/
 
-## 6. Advertising
+**Sharing your score.** If you tap Share on a result, the app creates a score-card image from your result (such as exam, score and date), saves it temporarily in the app's cache and hands it to the app you choose in Android's share sheet. We do not receive the image; the app you share to handles it under its own policy.
 
-ExamAI shows ads via **Google AdMob** to keep the app free, at 
-non-intrusive points (list screens and after finishing a quiz) — 
-never during active question-answering.
+**Exporting your history.** If you tap "Export my history" on the Insights screen, the app creates a CSV file of your completed quizzes (date/time, exam, subject, topic, practice/timed/mock type, total and answered question counts, correct answers, accuracy and duration) in its cache and hands it to the app you choose in Android's share sheet. The file can reveal your study history, so check the receiving app and recipient before sharing. Copies saved or sent outside ExamAI are controlled by you and the receiving service; deleting local quiz records does not delete those copies. We do not receive the file through an app-operated upload service; the app you share it with handles it under its own policy.
 
-AdMob may collect and use your device's **advertising ID** and 
-general technical data (device type, general location from IP, 
-ad interaction data) to serve and measure ads, as described in 
-Google's own Ads Privacy & Terms: https://policies.google.com/technologies/ads
+**Home-screen widget.** The optional study widget shows your study streak and number of reviews due. It is built from data stored on your device, uses the selected app language, and makes no network requests of its own. Anyone who can view your unlocked home screen may see those counts. Removing the widget does not delete your study records.
 
-We do not receive or store this data ourselves — it is processed by 
-Google's ad infrastructure.
+**App updates.** The app uses Google Play's In-App Updates to check whether a newer version is available and to download it. This check is performed by Google Play services using your Play account and device information under Google's terms. We do not run our own update server and the app logs update-check and update-flow events (for example, started or install confirmed) in analytics. Updates work only for installs from Google Play.
 
-Where required by law (e.g. EEA/UK), ExamAI asks for your consent to 
-personalized ads via Google's User Messaging Platform (UMP) before 
-loading ads. You can decline personalized ads and still see 
-non-personalized ads. You can manage ad personalization for your 
-device in your Google Account settings.
+Brynflow exam-preparation links open https://brynflow.com/exams in your browser only after you tap them. The app records a link-open event and source screen in analytics; the website and browser may separately process standard browsing data under their own policies. Other external links, including official exam-authority links, also open only after a user action. Do not assume a website's data practices are identical to this app's practices.
 
----
+## 6. Advertising and rewards
 
-## 7. Analytics & Crash Reporting
+ExamAI includes AdMob banner, interstitial and optional rewarded ads. Google and its advertising partners may process identifiers such as the advertising ID, IP-derived approximate location, device/app information and ad-interaction data for ad delivery, measurement, fraud prevention and related purposes.
 
-ExamAI uses **Google Firebase Analytics** and **Firebase Crashlytics** 
-to understand how the app is used and to catch crashes and errors so 
-we can fix them.
+Rewarded ads require an explicit tap on a disclosed offer. Examples include two additional note searches or a 15-minute break from banners and interstitials. A reward is granted only after the ad SDK reports it earned; closing an ad early may not earn a reward. Notifications are not used as ad placements. The app logs ad loading/showing/reward events and SDK paid-event information, such as revenue value, currency, ad format and rewarded placement, through Firebase.
 
-**What this includes:**
-- Screens viewed and in-app actions (e.g. which exam/subject/topic you 
-  practice, quiz completion and scores, bookmark and note actions)
-- General device/app info (device model, OS version, app version, 
-  approximate country from IP)
-- Crash and error reports with stack traces
+Where applicable, Google's User Messaging Platform gathers privacy choices before ad requests are permitted. Ad privacy choices appear in Settings when the SDK requires that entry point. Notification permission and daily-reminder consent are separate from advertising choices.
 
-**What this does NOT include:** your name, email address, phone 
-number, or any other information that identifies you personally. 
-Firebase assigns an anonymous installation identifier to your device, 
-not your real identity.
+Google advertising information: https://policies.google.com/technologies/ads
 
-This data is processed by Google under Firebase's own privacy terms: 
-https://firebase.google.com/support/privacy
+## 7. Analytics and crash reporting
 
-We use it only to improve app stability and understand feature usage — 
-never to build an advertising profile of you outside of the AdMob 
-usage described in Section 6. (Google AdMob's own ad-measurement 
-data is separate from this and is also processed by Google.)
+Firebase Analytics and Crashlytics process information such as installation/app-instance identifiers, device and operating-system details, app version, usage events, screens visited, exam/subject/topic selections, note-search activity, quiz completion and scores, bookmark, review-session, mock-exam, timed-mode, daily-question and score-sharing actions, reminder toggles (not reminder content), opening the Insights screen or Flashcards, finishing a flashcard deck (not its contents), history exports (not their contents), app-language changes (the chosen language code), update-check and update-flow events, ad events, crash stack traces, error details and diagnostic logs. These identifiers can distinguish an app installation and can be associated with a device or app instance.
 
----
+Note-search events include the topic or search text you enter, and study events can include exam/subject/topic labels, scores, counts and local attempt identifiers. The app also adds event parameters to Crashlytics diagnostic breadcrumbs. Avoid entering sensitive personal information in a topic search. App-language changes send the selected language code, or “system”; they do not send the translated interface text. Opening Insights, opening or completing flashcards, and requesting a history export log feature-use events, not the contents of the generated deck or exported file. The optional exam date and personal reminder contents are not intentionally included in these event parameters.
 
-## 8. Children's Privacy
+Ad privacy choices control the advertising SDK where applicable; they are not a separate in-app switch for Firebase Analytics or Crashlytics. The app currently has no dedicated in-app analytics or crash-reporting opt-out.
 
-ExamAI is used by students of many ages, including some under 13. 
-We do not knowingly collect personal information from anyone, and 
-the app itself requires no account, login, or personal details from 
-any user, child or adult.
+Personal reminder titles, optional notes and schedules are not intentionally included in analytics events or remote crash logs. Generic reminder-delivery errors may be reported. We use analytics, ad measurement and diagnostics to understand feature use, measure monetization and improve reliability. Google may process this information outside your country according to its service terms and privacy information.
 
-Because the app serves ads via Google AdMob, we configure ad requests 
-to comply with **COPPA** and the **Google Play Families Policy**, and 
-default to non-personalized ads until consent is given.
+Firebase privacy information: https://firebase.google.com/support/privacy
+Google privacy information: https://policies.google.com/privacy
 
-If you are a parent with concerns about ads shown to a child using 
-this app, please contact us using the details in Section 16.
+## 8. Contacting support
 
----
+If you choose to email contact@brynflow.com, your email provider and our support email service process the sender address, message and attachments you choose to send. We use that information to respond to your request and handle related support or privacy concerns. An email address is not required to use the app. Do not include sensitive information that is unnecessary for your request.
 
-## 9. Data Security
+## 9. Retention, deletion and security
 
-Since ExamAI does not collect or transmit personal data itself, 
-there is minimal personal data at risk from us directly. All data 
-stored locally on your device is protected by your device's 
-built-in security (screen lock, encryption, etc.).
+Local study data and delivered personal reminders remain until you remove them using the controls available for those items, clear the app's storage in Android settings, or uninstall it. Derived insights and flashcard decks are rebuilt from the remaining source records; marking a flashcard learned is not a data-deletion action. Changing the app language or removing the widget does not clear study history. Exported CSV files, score images and text reports are created in the app cache; Android may clear cached files, and they can also remain until overwritten or the cache is cleared. Copies shared to other apps are outside the app's deletion controls. Clearing only the cache does not necessarily delete the database or preferences. Deleting a pending personal reminder cancels its scheduled notification. Turning off daily reminders cancels their schedules and removes currently posted daily nudges; it does not delete your personal reminders.
 
-We recommend keeping your Android device updated for best 
-security practices.
+Backup copies, support correspondence and data processed by Google or other providers are subject to their applicable retention/deletion arrangements. Clearing app storage does not by itself guarantee deletion of data already processed by third-party services or stored in platform backups. Contact us with privacy requests, and use the relevant provider's controls where applicable.
 
----
+Device security and Android's app sandbox protect local files. Network requests use the providers' HTTPS endpoints. No storage or transmission method can be guaranteed completely secure.
 
-## 10. Data Retention
+## 10. Students and children's privacy
 
-We do not retain any user data on our servers because 
-we do not have any servers that collect user data.
+Students, including minors, may use the app. The app does not currently include an age-verification flow. Ad requests cap creative content at Google's Teen rating; this setting does not verify a user's age. Parents or guardians with questions about advertising, analytics or a child's information can contact contact@brynflow.com.
 
-Local data on your device (quiz history, bookmarks, cached questions) 
-is retained until you:
-- Clear the app's cache/data in device settings
-- Uninstall the app
+## 11. Changes and contact
 
----
+We update the date on this policy when its content changes. Notification, advertising and special-access choices remain governed by their separate controls; a policy update does not override a denial or opt-out.
 
-## 11. Your Rights
-
-You have the following rights regarding your local app data:
-
-- **Right to Delete:** Uninstall the app (or clear its data) to delete all local data
-- **Right to Access:** All your data is visible within the app itself
-- **Right to Portability:** Your data stays on your own device
-
-For questions about data AdMob collects on Google's side, see 
-Google's own privacy controls at https://adssettings.google.com/
-
----
-
-## 12. Permissions We Request
-
-ExamAI requests only the following Android permissions:
-
-| Permission | Why We Need It |
-|---|---|
-| INTERNET | Fetch live questions, study notes, and ads |
-| ACCESS_NETWORK_STATE | Check if internet is available before fetching content |
-| POST_NOTIFICATIONS (Android 13+, optional) | Show an optional daily practice reminder — you can decline it or turn it off anytime in Settings |
-
-We do **not** request permissions for:
-Camera, Microphone, Location, Contacts, Storage, Phone, 
-SMS, or any other sensitive permission.
-
----
-
-## 13. Third Party Links
-
-The app may display links to external websites such as 
-Wikipedia or NCERT. Once you leave the app and visit 
-these websites, their own privacy policies apply. 
-We are not responsible for the privacy practices of 
-these external sites.
-
----
-
-## 14. Changes to This Privacy Policy
-
-We may update this Privacy Policy from time to time. 
-When we do:
-
-- The "Last Updated" date at the top will be changed
-- Significant changes will be notified via a notice in the app
-- Continued use of the app after changes means you accept 
-  the updated policy
-
-We encourage you to review this policy periodically.
-
----
-
-## 15. Compliance
-
-This app and privacy policy comply with:
-
-- ✅ Google Play Developer Policy (including the Ads and Families policies)
-- ✅ GDPR (General Data Protection Regulation) — EU
-- ✅ COPPA (Children's Online Privacy Protection Act) — US
-- ✅ IT Act 2000 & DPDP Act 2023 — India
-- ✅ Wikipedia Terms of Use
-- ✅ Open Trivia DB Terms of Use
-- ✅ Google AdMob Program Policies
-- ✅ Google Firebase Terms of Service
-
----
-
-## 16. Contact Us
-
-If you have any questions, concerns, or requests regarding 
-this Privacy Policy, please contact us:
-
-**Developer:** Raiyan Shahid  
-**Email:** raiyannshahid@gmail.com  
-**GitHub:** https://github.com/RaiyanShahid91/ExamAI  
-**Response Time:** Within 48 hours  
-
----
-
-## 17. Consent
-
-By downloading and using ExamAI – Smart Study Assistant, 
-you confirm that you have read and understood this 
-Privacy Policy and agree to its terms.
-
----
-
-*This privacy policy was last reviewed and updated on 
-August 9, 2026.*
+For questions, concerns or privacy requests, email contact@brynflow.com. We use support correspondence to respond to your request.

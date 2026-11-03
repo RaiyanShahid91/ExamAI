@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -34,9 +35,12 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    private var detailJob: Job? = null
+
     fun loadDetail(attemptId: Long) {
+        detailJob?.cancel()
         _detail.value = null
-        viewModelScope.launch {
+        detailJob = viewModelScope.launch {
             repository.observeAttempt(attemptId).collect { _detail.value = it }
         }
     }

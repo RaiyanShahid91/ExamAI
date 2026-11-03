@@ -31,7 +31,7 @@ class ReviewRepository(context: Context) {
         val now = System.currentTimeMillis()
         val existing = dao.findByQuestion(question.question)
         if (existing != null) {
-            dao.update(existing.copy(box = 1, dueAt = dueAtForBox(1, now), lastReviewedAt = now))
+            dao.update(existing.copy(box = 1, dueAt = dueAtForBox(1, now)))
         } else {
             dao.insert(
                 ReviewItemEntity(

@@ -42,6 +42,8 @@ import com.ai.studyassistant.ui.theme.CorrectGreen
 import com.ai.studyassistant.ui.theme.WrongRed
 import com.ai.studyassistant.viewmodel.ReviewUiState
 import com.ai.studyassistant.viewmodel.ReviewViewModel
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
 
 @Composable
 fun ReviewScreen(
@@ -57,7 +59,7 @@ fun ReviewScreen(
     Scaffold(
         topBar = {
             Column {
-                BackTopBar(title = "Review", onBack = onBack)
+                BackTopBar(title = stringResource(R.string.review_review), onBack = onBack)
                 BannerAdView()
             }
         }
@@ -68,7 +70,7 @@ fun ReviewScreen(
                 .padding(padding)
         ) {
             when {
-                uiState.isLoading -> LoadingScreen(message = "Loading your review queue...")
+                uiState.isLoading -> LoadingScreen(message = stringResource(R.string.review_loading_your_review_queue))
                 uiState.items.isEmpty() -> ReviewEmptyState()
                 uiState.isSessionComplete -> ReviewCompleteState(uiState = uiState, onDone = onBack)
                 else -> ReviewContent(
@@ -96,13 +98,13 @@ private fun ReviewEmptyState(modifier: Modifier = Modifier) {
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Nothing due for review",
+            text = stringResource(R.string.review_nothing_due_for_review),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(top = 12.dp)
         )
         Text(
-            text = "Questions you get wrong in a quiz will show up here for spaced review.",
+            text = stringResource(R.string.review_questions_you_get_wrong_in),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp)
@@ -125,19 +127,19 @@ private fun ReviewCompleteState(uiState: ReviewUiState, onDone: () -> Unit, modi
             tint = CorrectGreen
         )
         Text(
-            text = "Review complete!",
+            text = stringResource(R.string.review_review_complete),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 12.dp)
         )
         Text(
-            text = "${uiState.correctCount} of ${uiState.items.size} correct",
+            text = stringResource(R.string.review_of_correct, uiState.correctCount, uiState.items.size),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp)
         )
         Button(onClick = onDone, modifier = Modifier.padding(top = 24.dp).bounceClick()) {
-            Text("Done")
+            Text(stringResource(R.string.flashcards_done))
         }
     }
 }
@@ -157,7 +159,7 @@ private fun ReviewContent(
             .padding(20.dp)
     ) {
         Text(
-            text = "Question ${uiState.currentIndex + 1} of ${uiState.items.size}",
+            text = stringResource(R.string.quiz_question_of, uiState.currentIndex + 1, uiState.items.size),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary
         )
@@ -218,7 +220,7 @@ private fun ReviewContent(
                     .padding(top = 20.dp)
                     .bounceClick()
             ) {
-                Text(if (uiState.isLastItem) "Finish" else "Next Question")
+                Text(if (uiState.isLastItem) stringResource(R.string.review_finish) else stringResource(R.string.common_next_question))
             }
         }
     }
@@ -251,7 +253,7 @@ private fun ReviewOptionCard(
     val borderColor by animateColorAsState(targetBorderColor, tween(300), label = "reviewOptionBorderColor")
 
     Surface(
-        shape = RoundedCornerShape(14.dp),
+        shape = MaterialTheme.shapes.medium,
         color = containerColor,
         border = BorderStroke(1.5.dp, borderColor),
         onClick = onClick,
@@ -265,6 +267,9 @@ private fun ReviewOptionCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Surface(shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.padding(end = 12.dp)) {
+                    Text(('A'.code + index).toChar().toString(), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
+                }
                 Text(
                     text = text,
                     style = MaterialTheme.typography.bodyLarge,

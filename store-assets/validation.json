@@ -1,0 +1,56 @@
+{
+  "01_welcome.png": {
+    "width": 1080,
+    "height": 1920,
+    "bytes": 1463759,
+    "opaque": true
+  },
+  "02_exams.png": {
+    "width": 1080,
+    "height": 1920,
+    "bytes": 1327671,
+    "opaque": true
+  },
+  "03_practice.png": {
+    "width": 1080,
+    "height": 1920,
+    "bytes": 1133231,
+    "opaque": true
+  },
+  "04_plan.png": {
+    "width": 1080,
+    "height": 1920,
+    "bytes": 1321181,
+    "opaque": true
+  },
+  "05_flashcards.png": {
+    "width": 1080,
+    "height": 1920,
+    "bytes": 1345249,
+    "opaque": true
+  },
+  "06_notes.png": {
+    "width": 1080,
+    "height": 1920,
+    "bytes": 1674534,
+    "opaque": true
+  },
+  "07_insights.png": {
+    "width": 1080,
+    "height": 1920,
+    "bytes": 1197805,
+    "opaque": true
+  },
+  "08_languages.png": {
+    "width": 1080,
+    "height": 1920,
+    "bytes": 1248660,
+    "opaque": true
+  },
+  "feature_graphic.png": {
+    "width": 1024,
+    "height": 500,
+    "bytes": 420273,
+    "opaque": true
+  }
+}

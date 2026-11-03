@@ -89,7 +89,7 @@ private val termsSections = listOf(
     ),
     TermsSection(
         title = "Contact Us",
-        body = "Questions about these Terms? Contact us at raiyannshahid@gmail.com."
+        body = "Questions about these Terms? Contact us at ${com.ai.studyassistant.ui.util.AppLinks.SUPPORT_EMAIL}."
     )
 )
 
@@ -123,7 +123,7 @@ private fun TermsSectionCard(section: TermsSection) {
             Text(
                 text = section.title,
                 fontWeight = FontWeight.Bold,
-                color = BrandNavy,
+                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleMedium
             )
             Text(

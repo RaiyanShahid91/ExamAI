@@ -44,7 +44,7 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
     fun selectAnswer(index: Int) {
         val state = _uiState.value
         val item = state.currentItem ?: return
-        if (state.isAnswered) return
+        if (state.isAnswered || index !in item.options.indices) return
         val isCorrect = index == item.correct
         _uiState.update {
             it.copy(
@@ -63,6 +63,7 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun nextItem() {
+        if (!_uiState.value.isAnswered) return
         _uiState.update {
             it.copy(currentIndex = it.currentIndex + 1, selectedOptionIndex = null, isAnswered = false)
         }

@@ -19,7 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
@@ -53,7 +53,18 @@ import com.ai.studyassistant.ui.components.bounceClick
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.ui.theme.BrandNavy
 import com.ai.studyassistant.viewmodel.UpdateViewModel
+import com.ai.studyassistant.ui.util.findActivity
 import kotlinx.coroutines.launch
+import com.ai.studyassistant.data.local.AppearancePreferences
+import com.ai.studyassistant.data.local.AppearanceSettings
+import com.ai.studyassistant.ui.components.AppearancePicker
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.ai.studyassistant.ui.components.LanguageDialog
+import com.ai.studyassistant.i18n.LanguageManager
 
 private const val PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.ai.studyassistant"
 
@@ -64,17 +75,23 @@ fun SettingsScreen(
     onAboutClick: () -> Unit,
     onTermsClick: () -> Unit,
     onPrivacyClick: () -> Unit,
-    onAiInfoClick: () -> Unit
+    onAiInfoClick: () -> Unit,
+    onRemindersClick: () -> Unit = {},
+    onWelcomeTour: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val appearancePreferences = remember { AppearancePreferences(context) }
+    val appearance by appearancePreferences.settings.collectAsState(initial = AppearanceSettings())
     val reminderPreferences = remember { ReminderPreferences(context) }
     val reminderEnabled by reminderPreferences.isEnabled.collectAsState(initial = false)
     val updateUiState by updateViewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
 
     fun enableReminders() {
-        scope.launch { reminderPreferences.setEnabled(true) }
-        DailyReminderWorker.schedule(context)
+        scope.launch {
+            reminderPreferences.setEnabled(true)
+            DailyReminderWorker.schedule(context)
+        }
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -90,12 +107,16 @@ fun SettingsScreen(
     }
 
     SettingsContent(
+        appearance = appearance,
+        onAppearanceChange = { scope.launch { appearancePreferences.save(it) } },
         reminderEnabled = reminderEnabled,
         onReminderToggle = { enabled ->
             AnalyticsManager.logEvent("reminder_toggled", mapOf("enabled" to enabled))
             if (!enabled) {
-                scope.launch { reminderPreferences.setEnabled(false) }
-                DailyReminderWorker.cancel(context)
+                scope.launch {
+                    reminderPreferences.setEnabled(false)
+                    DailyReminderWorker.cancel(context)
+                }
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             } else {
@@ -112,21 +133,25 @@ fun SettingsScreen(
                 type = "text/plain"
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    "Check out ExamAI — a free study assistant for JEE, NEET & UPSC prep: $PLAY_STORE_URL"
+                    context.getString(R.string.settings_share_text, PLAY_STORE_URL)
                 )
             }
-            context.startActivity(Intent.createChooser(shareIntent, "Share ExamAI"))
+            context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.settings_share_chooser)))
         },
         onBack = onBack,
         onAboutClick = onAboutClick,
         onTermsClick = onTermsClick,
         onPrivacyClick = onPrivacyClick,
-        onAiInfoClick = onAiInfoClick
+        onAiInfoClick = onAiInfoClick,
+        onRemindersClick = onRemindersClick,
+        onWelcomeTour = onWelcomeTour
     )
 }
 
 @Composable
 private fun SettingsContent(
+    appearance: AppearanceSettings = AppearanceSettings(),
+    onAppearanceChange: (AppearanceSettings) -> Unit = {},
     reminderEnabled: Boolean,
     onReminderToggle: (Boolean) -> Unit,
     onCheckForUpdate: () -> Unit,
@@ -135,10 +160,12 @@ private fun SettingsContent(
     onAboutClick: () -> Unit,
     onTermsClick: () -> Unit,
     onPrivacyClick: () -> Unit,
-    onAiInfoClick: () -> Unit
+    onAiInfoClick: () -> Unit,
+    onRemindersClick: () -> Unit = {},
+    onWelcomeTour: () -> Unit = {}
 ) {
     Scaffold(
-        topBar = { BackTopBar(title = "Settings", onBack = onBack) }
+        topBar = { BackTopBar(title = stringResource(R.string.settings_settings), onBack = onBack) }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -148,52 +175,65 @@ private fun SettingsContent(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item { SettingsHeader() }
+            item { com.ai.studyassistant.ui.components.FocusRewardCard("settings_focus") }
+            item { AdPrivacyOptions() }
+            item { com.ai.studyassistant.ui.components.BrynflowLearningCard("settings") }
+            item { com.ai.studyassistant.ui.components.SupportContactCard() }
+            item {
+                Surface(shape = MaterialTheme.shapes.large, color = MaterialTheme.colorScheme.surface) {
+                    Column(Modifier.padding(20.dp)) { AppearancePicker(appearance, onAppearanceChange) }
+                }
+            }
+            item { LanguageSettingRow() }
+            item { Text(stringResource(R.string.settings_your_routine), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            item { SettingsRow(Icons.Default.School, stringResource(R.string.settings_welcome_tour), stringResource(R.string.settings_welcome_tour_sub), onWelcomeTour) }
+            item { SettingsRow(Icons.Default.School, stringResource(R.string.common_my_reminders), stringResource(R.string.settings_reminders_sub), onRemindersClick) }
             item { ReminderToggleCard(enabled = reminderEnabled, onToggle = onReminderToggle) }
             item {
                 SettingsRow(
                     icon = Icons.Default.SystemUpdate,
-                    title = "Check for Updates",
-                    subtitle = "See if a newer version of ExamAI is available",
+                    title = stringResource(R.string.settings_check_for_updates),
+                    subtitle = stringResource(R.string.settings_see_if_a_newer_version),
                     onClick = onCheckForUpdate
                 )
             }
             item {
                 SettingsRow(
                     icon = Icons.Default.Share,
-                    title = "Share App",
-                    subtitle = "Tell a friend about ExamAI",
+                    title = stringResource(R.string.settings_share_app),
+                    subtitle = stringResource(R.string.settings_tell_a_friend_about_examai),
                     onClick = onShareApp
                 )
             }
             item {
                 SettingsRow(
                     icon = Icons.Default.Info,
-                    title = "About ExamAI",
-                    subtitle = "App info, disclaimer, official sources",
+                    title = stringResource(R.string.settings_about_examai),
+                    subtitle = stringResource(R.string.settings_app_info_disclaimer_official_sources),
                     onClick = onAboutClick
                 )
             }
             item {
                 SettingsRow(
                     icon = Icons.Default.AutoAwesome,
-                    title = "How AI Picks Your Questions",
-                    subtitle = "Where the questions come from",
+                    title = stringResource(R.string.settings_how_ai_picks_your_questions),
+                    subtitle = stringResource(R.string.settings_where_the_questions_come_from),
                     onClick = onAiInfoClick
                 )
             }
             item {
                 SettingsRow(
                     icon = Icons.Default.Lock,
-                    title = "Privacy Policy",
-                    subtitle = "How we handle your data",
+                    title = stringResource(R.string.settings_privacy_policy),
+                    subtitle = stringResource(R.string.settings_how_we_handle_your_data),
                     onClick = onPrivacyClick
                 )
             }
             item {
                 SettingsRow(
                     icon = Icons.Default.Gavel,
-                    title = "Terms & Conditions",
-                    subtitle = "Rules for using ExamAI",
+                    title = stringResource(R.string.settings_terms_conditions),
+                    subtitle = stringResource(R.string.settings_rules_for_using_examai),
                     onClick = onTermsClick
                 )
             }
@@ -211,24 +251,24 @@ private fun SettingsHeader() {
     ) {
         Surface(
             shape = CircleShape,
-            color = BrandNavy.copy(alpha = 0.12f),
+            color = MaterialTheme.colorScheme.primaryContainer,
             modifier = Modifier.size(56.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.School,
                 contentDescription = null,
-                tint = BrandNavy,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(12.dp)
             )
         }
         Column(modifier = Modifier.padding(start = 16.dp)) {
             Text(
-                text = "ExamAI",
+                text = stringResource(R.string.home_examai),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
-                text = "Smart Study Assistant",
+                text = stringResource(R.string.settings_smart_study_assistant),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -240,7 +280,7 @@ private fun SettingsHeader() {
 private fun ReminderToggleCard(enabled: Boolean, onToggle: (Boolean) -> Unit) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -252,12 +292,12 @@ private fun ReminderToggleCard(enabled: Boolean, onToggle: (Boolean) -> Unit) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Daily Reminder",
+                    text = stringResource(R.string.reminders_daily_study_reminders),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = "Get a daily nudge to keep your streak going",
+                    text = stringResource(R.string.settings_optional_up_to_2_a),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -276,7 +316,7 @@ private fun SettingsRow(
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surface,
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
@@ -304,7 +344,7 @@ private fun SettingsRow(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null)
+            Icon(imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
         }
     }
 }
@@ -325,4 +365,28 @@ private fun SettingsScreenPreview() {
             onAiInfoClick = {}
         )
     }
+}
+
+@Composable
+private fun AdPrivacyOptions() {
+    val required by com.ai.studyassistant.ads.ConsentManager.privacyOptionsRequired.collectAsState()
+    val context = LocalContext.current
+    if (required) {
+        SettingsRow(Icons.Default.Lock, stringResource(R.string.settings_ad_privacy), stringResource(R.string.settings_ad_privacy_sub)) {
+            context.findActivity()?.let { com.ai.studyassistant.ads.ConsentManager.showPrivacyOptions(it) }
+        }
+    }
+}
+
+@Composable
+private fun LanguageSettingRow() {
+    val context = LocalContext.current
+    var open by remember { mutableStateOf(false) }
+    val current = remember(open) { LanguageManager.currentTag(context) }
+    SettingsRow(
+        Icons.Default.Language,
+        stringResource(R.string.settings_language),
+        LanguageManager.nativeNameFor(current) ?: stringResource(R.string.language_system_default)
+    ) { open = true }
+    if (open) LanguageDialog(onDismiss = { open = false })
 }

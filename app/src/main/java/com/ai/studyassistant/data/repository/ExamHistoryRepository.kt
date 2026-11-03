@@ -45,21 +45,10 @@ class ExamHistoryRepository(context: Context) {
             )
         )
 
-    suspend fun recordAnswer(attemptId: Long, questionIndex: Int, selectedIndex: Int) {
-        val attempt = dao.getById(attemptId) ?: return
-        val updatedAnswers = attempt.answers.toMutableList().apply {
-            if (questionIndex in indices) this[questionIndex] = selectedIndex
-        }
-        dao.update(attempt.copy(answers = updatedAnswers))
-    }
+    suspend fun recordAnswer(attemptId: Long, questionIndex: Int, selectedIndex: Int) =
+        dao.recordAnswer(attemptId, questionIndex, selectedIndex)
 
-    suspend fun advanceTo(attemptId: Long, currentIndex: Int) {
-        val attempt = dao.getById(attemptId) ?: return
-        dao.update(attempt.copy(currentIndex = currentIndex))
-    }
+    suspend fun advanceTo(attemptId: Long, currentIndex: Int) = dao.advance(attemptId, currentIndex)
 
-    suspend fun finishAttempt(attemptId: Long) {
-        val attempt = dao.getById(attemptId) ?: return
-        dao.update(attempt.copy(isCompleted = true, endTime = System.currentTimeMillis()))
-    }
+    suspend fun finishAttempt(attemptId: Long) = dao.finish(attemptId, System.currentTimeMillis())
 }

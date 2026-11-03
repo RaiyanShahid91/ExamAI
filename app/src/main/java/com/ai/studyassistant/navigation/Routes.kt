@@ -3,6 +3,7 @@ package com.ai.studyassistant.navigation
 import android.net.Uri
 
 object Routes {
+    const val REMINDERS = "reminders"
     const val HOME = "home"
     const val SUBJECT = "subject/{exam}"
     const val TOPIC = "topic/{exam}/{subject}"
@@ -21,6 +22,8 @@ object Routes {
     const val SETTINGS = "settings"
     const val TERMS = "terms"
     const val AI_INFO = "ai_info"
+    const val INSIGHTS = "insights"
+    const val FLASHCARDS = "flashcards"
 
     fun subject(exam: String) = "subject/${Uri.encode(exam)}"
     fun topic(exam: String, subject: String) = "topic/${Uri.encode(exam)}/${Uri.encode(subject)}"

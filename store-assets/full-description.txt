@@ -1,0 +1,31 @@
+Build a study routine that fits your day. ExamAI brings practice questions, mock tests, flashcards, notes and progress tracking together in one easy-to-use app. Start without creating an account.
+
+PRACTISE FOR YOUR EXAM
+Explore JEE, NEET, UPSC, SSC, Banking, CAT and CDS/NDA. Choose an exam and subject, open practice topics or try a timed mixed-subject mock test. Get feedback and explanations as you answer, bookmark useful questions and resume unfinished attempts.
+
+PLAN ONE DAY AT A TIME
+Set a daily goal of 5–50 questions. Completed quizzes update your progress automatically. Add an optional exam date to see a countdown and a suggested practice pace. Create personal reminders, enable optional daily study nudges, or add the home-screen widget for your streak and reviews due.
+
+REVISIT WHAT YOU LEARN
+Missed questions enter spaced review. Flashcards bring missed and bookmarked questions into a simple flip-and-repeat session: reveal the answer, try it again or mark it learned for that session.
+
+KEEP USEFUL STUDY NOTES
+Search Wikipedia topic summaries and save notes to read offline. Two free note searches are available daily. Optional rewarded ads can add two more searches; saved notes remain available without a new search.
+
+UNDERSTAND YOUR PROGRESS
+Open Insights for accuracy, practice days, current and best streaks, achievement badges and topics needing more practice. Revisit completed reports in History, share a score card or export completed quiz history as a CSV file.
+
+MAKE THE APP YOURS
+Choose English, Hindi, Bengali, Marathi, Telugu, Tamil, Urdu, Kannada, Malayalam or Gujarati for the interface. Urdu supports right-to-left layout. Pick light, dark or system mode and one of five colour themes. The welcome tour explains how to get started.
+
+Questions, subject/topic names, fetched study content and legal/information pages remain in English. Interface language selection does not translate study content.
+
+STUDY OFFLINE TOO
+Use included questions, previously loaded content, saved notes, flashcards and local study records without an internet connection. New online content and note searches need internet. Available questions and mock length vary by subject; topic and difficulty choices do not guarantee strict matching for every question.
+
+YOUR DATA AND YOUR CHOICES
+No study account is required. Study records and preferences are saved on your device, and Android backups may copy them according to device settings. Content requests, Google AdMob, Firebase Analytics and Crashlytics use online services and process information described in the Privacy Policy. Reminders are optional.
+
+ExamAI is free to use and contains banner, interstitial and optional rewarded ads. Rewarded offers can add note searches or provide a 15-minute break from banners and interstitials. Ad privacy controls appear where required.
+
+ExamAI is an independent supplementary practice app. It is not affiliated with or endorsed by exam authorities, does not provide official past papers and does not guarantee exam results. Always consult official sources for syllabus, dates and exam updates.

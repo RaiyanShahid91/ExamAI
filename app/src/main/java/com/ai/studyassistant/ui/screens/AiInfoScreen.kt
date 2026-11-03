@@ -38,9 +38,10 @@ private val aiInfoSections = listOf(
                 "• Open Trivia Database (opentdb.com) — a free, public question API\n" +
                 "• Wikipedia — for topic summaries in Study Notes\n" +
                 "• NCERT — free public textbook content\n\n" +
-                "The App picks, filters, and mixes these automatically based on the exam, subject, " +
-                "topic, and difficulty you choose — that selection process is what we mean by " +
-                "\"AI/algorithm-curated.\""
+                "The app selects and mixes available practice content automatically. The bundled " +
+                "banks are organized by subject; topic selection and difficulty do not guarantee " +
+                "strict matching for every question. This selection process is what we mean by " +
+                "\"AI/algorithm-curated\"; the app does not send your saved answers to a generative-AI service."
     ),
     AiInfoSection(
         title = "Not from any coaching center or teacher",
@@ -51,18 +52,18 @@ private val aiInfoSections = listOf(
     ),
     AiInfoSection(
         title = "Offline-first by design",
-        body = "Questions you've already loaded are cached on your device, so you can keep " +
-                "practicing without an internet connection. Internet access is only used to fetch " +
-                "fresh or additional questions from the public sources above — everything else " +
-                "(your answers, scores, bookmarks, and history) is generated and stored entirely " +
-                "on your device."
+        body = "Bundled questions, cached content and saved notes let you keep studying offline. " +
+                "Fresh questions and note searches need internet. Ads, Firebase analytics and crash " +
+                "reporting, and Google Play update checks can also use online services. Your study " +
+                "records are saved locally; see the Privacy Policy for third-party data processing."
     ),
     AiInfoSection(
-        title = "No servers of our own",
-        body = "ExamAI does not run a backend server. There is nowhere for your activity to be " +
-                "stored \"in the cloud\" by us, because we don't operate any cloud infrastructure. " +
-                "Your device talks directly to the public APIs listed above to fetch content — " +
-                "nothing is routed through or logged by us."
+        title = "Local study data and online services",
+        body = "We do not run a study-account or cloud-sync server. Flashcards and progress insights " +
+                "are built on your device from saved questions and attempts. Public content providers " +
+                "receive content requests, while Google AdMob, Firebase Analytics and Crashlytics " +
+                "process advertising, usage and diagnostic information. Local storage does not mean " +
+                "that no app activity is sent to third parties. Read the Privacy Policy for details."
     )
 )
 
@@ -125,7 +126,7 @@ private fun AiInfoSectionCard(section: AiInfoSection) {
             Text(
                 text = section.title,
                 fontWeight = FontWeight.Bold,
-                color = BrandNavy,
+                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleMedium
             )
             Text(

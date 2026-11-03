@@ -2,87 +2,92 @@ package com.ai.studyassistant.ads
 
 import android.app.Activity
 import android.content.Context
+import android.os.SystemClock
 import com.ai.studyassistant.analytics.AnalyticsManager
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.*
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * Preloaded eagerly so it's ready by the time a gate (e.g. the study-notes search limit)
- * needs it. Mirrors [InterstitialAdManager]'s load/show split; the reward is only granted
- * from [RewardedAd]'s onUserEarnedReward callback, never just for the ad finishing/dismissing.
- */
+enum class RewardedStatus { IDLE, LOADING, READY, SHOWING, UNAVAILABLE }
+
 object RewardedAdManager {
     private var rewardedAd: RewardedAd? = null
+    private var loadedAt = 0L
+    private var generation = 0
+    private val _status = MutableStateFlow(RewardedStatus.IDLE)
+    val status = _status.asStateFlow()
 
-    @Volatile private var isLoading = false
-
-    fun preload(context: Context) {
-        if (!ADS_ENABLED || rewardedAd != null || isLoading) return
-        isLoading = true
-        RewardedAd.load(
-            context,
-            AdIds.REWARDED,
-            AdRequest.Builder().build(),
-            object : RewardedAdLoadCallback() {
-                override fun onAdLoaded(ad: RewardedAd) {
-                    rewardedAd = ad
-                    isLoading = false
-                    AnalyticsManager.logEvent("rewarded_ad_loaded")
-                }
-
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    rewardedAd = null
-                    isLoading = false
-                    AnalyticsManager.recordNonFatal(
-                        Exception("Rewarded ad load failed: ${error.code} ${error.message}"),
-                        context = "RewardedAdManager.preload"
-                    )
-                }
-            }
-        )
+    fun invalidate() {
+        generation++
+        rewardedAd = null
+        if (_status.value != RewardedStatus.SHOWING) _status.value = RewardedStatus.IDLE
     }
 
-    /**
-     * Shows the rewarded ad if one is ready. [onRewarded] fires only if the user earns the
-     * reward, with the reward amount as configured in the AdMob console for this ad unit
-     * (read from the SDK's own callback rather than hardcoded, so a console-side change to
-     * the reward amount takes effect with no app update). [onDismissed] always fires once
-     * the ad flow ends (shown-then-closed or unavailable), so callers can use it to
-     * re-enable a "watch ad" button.
-     */
-    fun showIfAvailable(activity: Activity, onRewarded: (amount: Int) -> Unit, onDismissed: () -> Unit = {}) {
-        if (!ADS_ENABLED) {
-            onDismissed()
+    fun preload(context: Context) {
+        if (!ADS_ENABLED || !ConsentManager.adsReady.value || AdExperience.fullscreenShowing) return
+        if (rewardedAd != null && SystemClock.elapsedRealtime() - loadedAt > 55 * 60_000) invalidate()
+        if (rewardedAd != null || _status.value == RewardedStatus.LOADING) return
+        _status.value = RewardedStatus.LOADING
+        val requestGeneration = generation
+        RewardedAd.load(context.applicationContext, AdIds.rewarded(context), AdRequest.Builder().build(), object : RewardedAdLoadCallback() {
+            override fun onAdLoaded(ad: RewardedAd) {
+                if (requestGeneration != generation) return
+                if (!ConsentManager.adsReady.value) { invalidate(); return }
+                rewardedAd = ad
+                loadedAt = SystemClock.elapsedRealtime()
+                _status.value = RewardedStatus.READY
+                AnalyticsManager.logEvent("rewarded_ad_loaded")
+            }
+            override fun onAdFailedToLoad(error: LoadAdError) {
+                if (requestGeneration != generation) return
+                rewardedAd = null
+                _status.value = RewardedStatus.UNAVAILABLE
+                AnalyticsManager.logEvent("rewarded_ad_load_failed", mapOf("code" to error.code))
+            }
+        })
+    }
+
+    fun showIfAvailable(activity: Activity, placement: String, onRewarded: () -> Unit, onDismissed: (Boolean) -> Unit) {
+        val ad = rewardedAd
+        if (!ADS_ENABLED || !ConsentManager.adsReady.value || ad == null || AdExperience.fullscreenShowing ||
+            activity.isFinishing || activity.isDestroyed || SystemClock.elapsedRealtime() - loadedAt > 55 * 60_000) {
+            onDismissed(false)
+            preload(activity)
             return
         }
-        val ad = rewardedAd
-        if (ad == null) {
-            onDismissed()
-            return
+        rewardedAd = null // Consume before showing, so repeated taps cannot reuse the ad.
+        AdExperience.fullscreenShowing = true
+        _status.value = RewardedStatus.SHOWING
+        var earned = false
+        var ended = false
+        fun end() {
+            if (ended) return
+            ended = true
+            AdExperience.fullscreenEnded()
+            _status.value = RewardedStatus.IDLE
+            onDismissed(earned)
+            preload(activity.applicationContext)
+        }
+        ad.setOnPaidEventListener { value ->
+            AnalyticsManager.logEvent("ad_revenue", mapOf("format" to "rewarded", "placement" to placement,
+                "value_micros" to value.valueMicros, "currency" to value.currencyCode, "precision" to value.precisionType))
         }
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
-            override fun onAdDismissedFullScreenContent() {
-                rewardedAd = null
-                onDismissed()
-            }
-
+            override fun onAdShowedFullScreenContent() { AnalyticsManager.logEvent("rewarded_ad_shown", mapOf("placement" to placement)) }
+            override fun onAdDismissedFullScreenContent() = end()
             override fun onAdFailedToShowFullScreenContent(error: AdError) {
-                rewardedAd = null
-                AnalyticsManager.recordNonFatal(
-                    Exception("Rewarded ad show failed: ${error.code} ${error.message}"),
-                    context = "RewardedAdManager.showIfAvailable"
-                )
-                onDismissed()
+                AnalyticsManager.logEvent("rewarded_ad_show_failed", mapOf("placement" to placement, "code" to error.code))
+                end()
             }
         }
-        AnalyticsManager.logEvent("rewarded_ad_shown")
-        ad.show(activity) { rewardItem ->
-            AnalyticsManager.logEvent("rewarded_ad_earned", mapOf("amount" to rewardItem.amount))
-            onRewarded(rewardItem.amount)
+        ad.show(activity) {
+            if (!earned) {
+                earned = true
+                AnalyticsManager.logEvent("rewarded_ad_earned", mapOf("placement" to placement))
+                onRewarded()
+            }
         }
     }
 }

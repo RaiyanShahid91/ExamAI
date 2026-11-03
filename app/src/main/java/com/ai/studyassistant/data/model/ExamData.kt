@@ -21,11 +21,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.ai.studyassistant.ui.theme.BrandTeal
 import com.ai.studyassistant.ui.theme.BrandNavy
+import androidx.annotation.StringRes
+import com.ai.studyassistant.R
 
 data class Exam(
     val name: String,
     val fullName: String,
-    val tagline: String,
+    @StringRes val taglineRes: Int,
     val icon: ImageVector
 )
 
@@ -38,13 +40,13 @@ data class Subject(
 object ExamData {
 
     val exams = listOf(
-        Exam("JEE", "Joint Entrance Examination", "Crack IIT, NIT & more", Icons.Default.Calculate),
-        Exam("NEET", "National Eligibility cum Entrance Test", "Your path to medical college", Icons.Default.LocalHospital),
-        Exam("UPSC", "Civil Services Examination", "Serve the nation, lead the change", Icons.Default.AccountBalance),
-        Exam("SSC", "Staff Selection Commission", "Government jobs: CGL, CHSL & more", Icons.Default.Work),
-        Exam("Banking", "IBPS / SBI PO & Clerk", "Land your banking career", Icons.Default.AccountBalanceWallet),
-        Exam("CAT", "Common Admission Test", "Your gateway to top B-schools", Icons.Default.Business),
-        Exam("CDS/NDA", "Defence Services Exam", "Serve the nation in uniform", Icons.Default.Shield),
+        Exam("JEE", "Joint Entrance Examination", R.string.tagline_jee, Icons.Default.Calculate),
+        Exam("NEET", "National Eligibility cum Entrance Test", R.string.tagline_neet, Icons.Default.LocalHospital),
+        Exam("UPSC", "Civil Services Examination", R.string.tagline_upsc, Icons.Default.AccountBalance),
+        Exam("SSC", "Staff Selection Commission", R.string.tagline_ssc, Icons.Default.Work),
+        Exam("Banking", "IBPS / SBI PO & Clerk", R.string.tagline_banking, Icons.Default.AccountBalanceWallet),
+        Exam("CAT", "Common Admission Test", R.string.tagline_cat, Icons.Default.Business),
+        Exam("CDS/NDA", "Defence Services Exam", R.string.tagline_cds_nda, Icons.Default.Shield),
     )
 
     fun subjectsFor(exam: String): List<Subject> = when (exam) {

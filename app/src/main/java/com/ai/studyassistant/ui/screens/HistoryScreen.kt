@@ -41,6 +41,9 @@ import com.ai.studyassistant.ui.theme.CorrectGreen
 import com.ai.studyassistant.viewmodel.HistoryViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun HistoryScreen(
@@ -72,7 +75,7 @@ private fun HistoryContent(
     Scaffold(
         topBar = {
             Column {
-                BackTopBar(title = "History", onBack = onBack)
+                BackTopBar(title = stringResource(R.string.history_history), onBack = onBack)
                 BannerAdView()
             }
         }
@@ -85,6 +88,7 @@ private fun HistoryContent(
                 contentPadding = PaddingValues(20.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                item { com.ai.studyassistant.ui.components.ScreenIntro(stringResource(R.string.history_look_how_far_come), stringResource(R.string.history_revisit_results)) }
                 if (subjectStats.isNotEmpty()) {
                     item { SubjectAccuracySummary(stats = subjectStats) }
                 }
@@ -101,13 +105,13 @@ private fun HistoryContent(
 @Composable
 private fun SubjectAccuracySummary(stats: List<SubjectStat>) {
     Surface(
-        shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
             Text(
-                text = "Accuracy by subject",
+                text = stringResource(R.string.history_accuracy_by_subject),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -152,12 +156,12 @@ private fun EmptyHistory(modifier: Modifier = Modifier) {
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "No exams taken yet",
+                text = stringResource(R.string.history_no_exams_taken_yet),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = "Attempts you start or finish will show up here.",
+                text = stringResource(R.string.history_attempts_you_start_or_finish),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp)
@@ -169,8 +173,8 @@ private fun EmptyHistory(modifier: Modifier = Modifier) {
 @Composable
 private fun AttemptCard(attempt: ExamAttemptSummary, onClick: () -> Unit) {
     Surface(
-        shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
@@ -209,25 +213,25 @@ private fun AttemptCard(attempt: ExamAttemptSummary, onClick: () -> Unit) {
                             color = CorrectGreen
                         )
                         Text(
-                            text = formatDuration(attempt.durationMillis),
+                            text = formatDuration(LocalContext.current, attempt.durationMillis),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Text(
-                        text = "View details",
+                        text = stringResource(R.string.history_view_details),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
                 } else {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "${attempt.answeredCount} of ${attempt.total} answered",
+                            text = stringResource(R.string.history_of_answered, attempt.answeredCount, attempt.total),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "In progress",
+                            text = stringResource(R.string.history_in_progress),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -238,7 +242,7 @@ private fun AttemptCard(attempt: ExamAttemptSummary, onClick: () -> Unit) {
                             contentDescription = null,
                             modifier = Modifier.padding(end = 6.dp)
                         )
-                        Text("Resume")
+                        Text(stringResource(R.string.history_resume))
                     }
                 }
             }
@@ -249,12 +253,10 @@ private fun AttemptCard(attempt: ExamAttemptSummary, onClick: () -> Unit) {
 private fun formatDateTime(millis: Long): String =
     SimpleDateFormat("MMM d, yyyy • h:mm a", Locale.getDefault()).format(millis)
 
-private fun formatDuration(millis: Long?): String {
-    if (millis == null) return "In progress"
+private fun formatDuration(context: android.content.Context, millis: Long?): String {
+    if (millis == null) return context.getString(R.string.duration_in_progress)
     val totalSeconds = millis / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return "${minutes}m ${seconds}s"
+    return context.getString(R.string.duration_min_sec, totalSeconds / 60, totalSeconds % 60)
 }
 
 private val sampleCompleted = ExamAttemptSummary(

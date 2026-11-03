@@ -10,7 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,8 +35,18 @@ import com.ai.studyassistant.ui.components.BannerAdView
 import com.ai.studyassistant.ui.components.StaggeredEntrance
 import com.ai.studyassistant.ui.components.bounceClick
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
 
 private val DIFFICULTIES = listOf("Any", "Easy", "Medium", "Hard")
+
+@androidx.annotation.StringRes
+private fun difficultyLabel(difficulty: String) = when (difficulty) {
+    "Easy" -> R.string.difficulty_easy
+    "Medium" -> R.string.difficulty_medium
+    "Hard" -> R.string.difficulty_hard
+    else -> R.string.difficulty_any
+}
 
 @Composable
 fun TopicScreen(
@@ -46,8 +56,8 @@ fun TopicScreen(
     onTopicSelected: (String, String?, Boolean) -> Unit
 ) {
     val topics = ExamData.topicsFor(exam, subject)
-    var selectedDifficulty by remember { mutableStateOf("Any") }
-    var timedMode by remember { mutableStateOf(false) }
+    var selectedDifficulty by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf("Any") }
+    var timedMode by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -64,6 +74,7 @@ fun TopicScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            item { com.ai.studyassistant.ui.components.ScreenIntro(stringResource(R.string.topic_one_at_a_time), stringResource(R.string.topic_choose_challenge)) }
             item {
                 DifficultyFilterRow(
                     selected = selectedDifficulty,
@@ -99,17 +110,18 @@ fun TopicScreen(
 
 @Composable
 private fun DifficultyFilterRow(selected: String, onSelect: (String) -> Unit) {
-    Row(
+    androidx.compose.foundation.lazy.LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 4.dp)
     ) {
-        DIFFICULTIES.forEach { difficulty ->
+        items(DIFFICULTIES.size) { index ->
+            val difficulty = DIFFICULTIES[index]
             FilterChip(
                 selected = selected == difficulty,
                 onClick = { onSelect(difficulty) },
-                label = { Text(difficulty) }
+                label = { Text(stringResource(difficultyLabel(difficulty))) }
             )
         }
     }
@@ -118,8 +130,8 @@ private fun DifficultyFilterRow(selected: String, onSelect: (String) -> Unit) {
 @Composable
 private fun TimedModeToggle(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -129,7 +141,7 @@ private fun TimedModeToggle(checked: Boolean, onCheckedChange: (Boolean) -> Unit
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Timed Mode", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+            Text(text = stringResource(R.string.topic_timed_mode), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
             Switch(checked = checked, onCheckedChange = onCheckedChange)
         }
     }
@@ -138,8 +150,8 @@ private fun TimedModeToggle(checked: Boolean, onCheckedChange: (Boolean) -> Unit
 @Composable
 private fun TopicChip(topic: String, onClick: () -> Unit) {
     Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface,
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
@@ -156,7 +168,7 @@ private fun TopicChip(topic: String, onClick: () -> Unit) {
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f)
             )
-            Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null)
+            Icon(imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
         }
     }
 }

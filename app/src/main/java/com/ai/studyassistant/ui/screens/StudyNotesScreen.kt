@@ -46,6 +46,9 @@ import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.ui.util.findActivity
 import com.ai.studyassistant.viewmodel.NotesUiState
 import com.ai.studyassistant.viewmodel.NotesViewModel
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
+import androidx.compose.ui.res.pluralStringResource
 
 private val quickTopics = listOf(
     "Photosynthesis", "Newton's Laws of Motion", "Indian Constitution",
@@ -61,7 +64,9 @@ fun StudyNotesScreen(
     val context = LocalContext.current
     StudyNotesContent(
         uiState = uiState,
-        onSearch = { topic -> viewModel.search(topic, context.findActivity()) },
+        onSearch = { topic -> viewModel.search(topic) },
+        onRewardSearches = viewModel::grantSearches,
+        onOpenSaved = viewModel::openSaved,
         onToggleSave = { viewModel.toggleSave() },
         onBack = onBack
     )
@@ -72,14 +77,16 @@ private fun StudyNotesContent(
     uiState: NotesUiState,
     onSearch: (String) -> Unit,
     onToggleSave: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onRewardSearches: () -> Unit = {},
+    onOpenSaved: (StudyNote) -> Unit = {}
 ) {
-    var query by remember { mutableStateOf("") }
+    var query by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf("") }
 
     Scaffold(
         topBar = {
             Column {
-                BackTopBar(title = "Study Notes", onBack = onBack)
+                BackTopBar(title = stringResource(R.string.study_notes_study_notes), onBack = onBack)
                 BannerAdView()
             }
         }
@@ -91,31 +98,42 @@ private fun StudyNotesContent(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
+            com.ai.studyassistant.ui.components.ScreenIntro(stringResource(R.string.notes_follow_curiosity), stringResource(R.string.notes_clear_summaries))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(
                     value = query,
                     onValueChange = { query = it },
-                    label = { Text("Search any topic") },
+                    label = { Text(stringResource(R.string.study_notes_search_any_topic)) },
                     singleLine = true,
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(
-                    onClick = { if (query.isNotBlank()) onSearch(query.trim()) }
+                    onClick = { if (query.isNotBlank()) onSearch(query.trim()) },
+                    enabled = !uiState.isLoading
                 ) {
-                    Icon(Icons.Default.Search, contentDescription = "Search")
+                    Icon(Icons.Default.Search, contentDescription = stringResource(R.string.study_notes_search))
                 }
             }
 
-            SearchAllowanceHint(remaining = uiState.freeSearchesRemaining)
+            if (com.ai.studyassistant.ads.ADS_ENABLED) {
+                SearchAllowanceHint(remaining = uiState.freeSearchesRemaining)
+                if (uiState.freeSearchesRemaining <= 1) {
+                    com.ai.studyassistant.ui.components.RewardedOfferCard(
+                        stringResource(R.string.notes_add_two_searches), stringResource(R.string.notes_add_two_searches_body),
+                        "notes_searches", onRewardSearches
+                    )
+                }
+            }
 
             Text(
-                text = "Quick topics",
+                text = stringResource(R.string.study_notes_quick_topics),
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
             )
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(quickTopics) { topic ->
                     AssistChip(
+                        enabled = !uiState.isLoading,
                         onClick = {
                             query = topic
                             onSearch(topic)
@@ -147,7 +165,7 @@ private fun StudyNotesContent(
                     val note = uiState.note!!
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        color = MaterialTheme.colorScheme.surface,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 20.dp)
@@ -163,7 +181,7 @@ private fun StudyNotesContent(
                                 IconButton(onClick = onToggleSave) {
                                     Icon(
                                         imageVector = if (note.isSaved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                                        contentDescription = "Save note"
+                                        contentDescription = stringResource(R.string.study_notes_save_note)
                                     )
                                 }
                             }
@@ -177,17 +195,19 @@ private fun StudyNotesContent(
                 }
             }
 
+            com.ai.studyassistant.ui.components.BrynflowLearningCard("notes")
+
             if (uiState.savedNotes.isNotEmpty()) {
                 Text(
-                    text = "Saved for offline",
+                    text = stringResource(R.string.study_notes_saved_for_offline),
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier.padding(top = 28.dp, bottom = 8.dp)
                 )
                 uiState.savedNotes.forEach { saved ->
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MaterialTheme.shapes.medium,
                         color = MaterialTheme.colorScheme.surface,
-                        onClick = { onSearch(saved.topic) },
+                        onClick = { onOpenSaved(saved) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp)
@@ -218,9 +238,9 @@ private fun SearchAllowanceHint(remaining: Int) {
         )
         Text(
             text = if (remaining > 0) {
-                "$remaining free search${if (remaining == 1) "" else "es"} left"
+                pluralStringResource(R.plurals.notes_searches_left, remaining, remaining)
             } else {
-                "Watch a short ad to unlock 2 more searches"
+                stringResource(R.string.notes_no_searches_left)
             },
             style = MaterialTheme.typography.labelMedium,
             color = if (remaining > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.tertiary,
@@ -243,7 +263,7 @@ private fun StudyNotesContentPreview() {
         StudyNotesContent(
             uiState = NotesUiState(
                 note = sampleNote,
-                savedNotes = listOf(sampleNote, sampleNote.copy(topic = "Newton's Laws of Motion", title = "Newton's Laws of Motion"))
+                savedNotes = listOf(sampleNote, sampleNote.copy(topic = "Newton's Laws of Motion", title = stringResource(R.string.study_notes_newton_s_laws_of_motion)))
             ),
             onSearch = {},
             onToggleSave = {},

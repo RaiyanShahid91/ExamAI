@@ -1,0 +1,106 @@
+[
+  {
+    "name": "01_welcome",
+    "source": "store-assets/sources/01_welcome.png",
+    "title": "A simpler way\nto prepare.",
+    "subtitle": "Practice, plan and revise. No account needed.",
+    "eyebrow": "START WITH A CLEAR PATH",
+    "crop": [
+      0,
+      0,
+      1080,
+      2400
+    ]
+  },
+  {
+    "name": "02_exams",
+    "source": "store-assets/sources/02_exams.png",
+    "title": "Your exam.\nYour starting point.",
+    "subtitle": "JEE, NEET, UPSC, SSC, Banking, CAT & CDS/NDA.",
+    "eyebrow": "EXPLORE 7 EXAM PATHS",
+    "crop": [
+      0,
+      0,
+      1080,
+      1980
+    ]
+  },
+  {
+    "name": "03_practice",
+    "source": "store-assets/sources/03_practice.png",
+    "title": "Learn from\nevery answer.",
+    "subtitle": "Instant feedback and explanations as you practise.",
+    "eyebrow": "PRACTICE WITH PURPOSE",
+    "crop": [
+      0,
+      475,
+      1080,
+      1540
+    ]
+  },
+  {
+    "name": "04_plan",
+    "source": "store-assets/sources/04_plan.png",
+    "title": "Make each\nstudy day count.",
+    "subtitle": "Daily goals, an exam countdown and suggested pace.",
+    "eyebrow": "BUILD YOUR ROUTINE",
+    "crop": [
+      0,
+      610,
+      1080,
+      1260
+    ]
+  },
+  {
+    "name": "05_flashcards",
+    "source": "store-assets/sources/05_flashcards.png",
+    "title": "Turn mistakes\ninto revision.",
+    "subtitle": "Flip through missed and bookmarked questions.",
+    "eyebrow": "FLASHCARDS + SPACED REVIEW",
+    "crop": [
+      0,
+      460,
+      1080,
+      1060
+    ]
+  },
+  {
+    "name": "06_notes",
+    "source": "store-assets/sources/06_notes.png",
+    "title": "Keep useful notes.\nRead them offline.",
+    "subtitle": "Search topic summaries. Save what helps you learn.",
+    "eyebrow": "STUDY NOTES",
+    "crop": [
+      0,
+      1745,
+      1080,
+      590
+    ]
+  },
+  {
+    "name": "07_insights",
+    "source": "store-assets/sources/07_insights.png",
+    "title": "See your progress.\nFind your focus.",
+    "subtitle": "Accuracy, practice days, streaks and badges.",
+    "eyebrow": "YOUR STUDY INSIGHTS",
+    "crop": [
+      0,
+      0,
+      1080,
+      1680
+    ]
+  },
+  {
+    "name": "08_languages",
+    "source": "store-assets/sources/08_languages.png",
+    "title": "Make studying\nfeel like you.",
+    "subtitle": "10 interface languages. Light, dark and colour themes.",
+    "eyebrow": "LANGUAGE + APPEARANCE",
+    "crop": [
+      0,
+      100,
+      1080,
+      1570
+    ]
+  }
+]

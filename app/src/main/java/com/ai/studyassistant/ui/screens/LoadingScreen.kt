@@ -28,10 +28,13 @@ import androidx.compose.ui.unit.dp
 import com.ai.studyassistant.ui.components.GradientBackground
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.ui.theme.GradientTokens
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
 
 @Composable
-fun LoadingScreen(message: String = "Generating your questions...") {
-    val transition = rememberInfiniteTransition(label = "loading")
+fun LoadingScreen(message: String? = null) {
+    val displayMessage = message ?: stringResource(R.string.loading_generating_your_questions)
+    val transition = rememberInfiniteTransition(label = "Loading")
     val rotation by transition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
@@ -51,7 +54,7 @@ fun LoadingScreen(message: String = "Generating your questions...") {
         label = "pulse"
     )
 
-    GradientBackground(colors = GradientTokens.hero(), animated = true) {
+    GradientBackground(colors = GradientTokens.hero(), animated = false) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -62,23 +65,23 @@ fun LoadingScreen(message: String = "Generating your questions...") {
             Icon(
                 imageVector = Icons.Default.AutoAwesome,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = pulse),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = pulse),
                 modifier = Modifier
                     .size(72.dp)
                     .rotate(rotation)
             )
             Text(
-                text = message,
+                text = displayMessage,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 24.dp)
             )
             Text(
-                text = "Please wait while we are generating you real time questions.",
+                text = stringResource(R.string.loading_please_wait_while_we_are),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.85f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp)
             )

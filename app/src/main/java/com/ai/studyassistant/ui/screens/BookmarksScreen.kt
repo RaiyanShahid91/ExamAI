@@ -38,6 +38,8 @@ import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.ui.theme.CorrectGreen
 import com.ai.studyassistant.ui.theme.WrongRed
 import com.ai.studyassistant.viewmodel.BookmarksViewModel
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
 
 @Composable
 fun BookmarksScreen(
@@ -62,7 +64,7 @@ private fun BookmarksContent(
     Scaffold(
         topBar = {
             Column {
-                BackTopBar(title = "Bookmarked Questions", onBack = onBack)
+                BackTopBar(title = stringResource(R.string.bookmarks_bookmarked_questions), onBack = onBack)
                 BannerAdView()
             }
         }
@@ -75,6 +77,7 @@ private fun BookmarksContent(
                 contentPadding = PaddingValues(20.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                item { com.ai.studyassistant.ui.components.ScreenIntro("Your personal question bank", "Keep the questions worth another look.") }
                 itemsIndexed(bookmarks, key = { _, bookmark -> bookmark.id }) { index, bookmark ->
                     StaggeredEntrance(index = index) {
                         BookmarkCard(bookmark = bookmark, onRemove = { onRemove(bookmark) })
@@ -100,13 +103,13 @@ private fun EmptyBookmarks(modifier: Modifier = Modifier) {
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "No bookmarked questions yet",
+                text = stringResource(R.string.bookmarks_no_bookmarked_questions_yet),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(top = 12.dp)
             )
             Text(
-                text = "Tap the bookmark icon during a quiz to save a question here.",
+                text = stringResource(R.string.bookmarks_tap_the_bookmark_icon_during),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp)
@@ -119,7 +122,7 @@ private fun EmptyBookmarks(modifier: Modifier = Modifier) {
 private fun BookmarkCard(bookmark: BookmarkedQuestionEntity, onRemove: () -> Unit) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
@@ -137,7 +140,7 @@ private fun BookmarkCard(bookmark: BookmarkedQuestionEntity, onRemove: () -> Uni
                 IconButton(onClick = onRemove) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Remove bookmark",
+                        contentDescription = stringResource(R.string.bookmarks_remove_bookmark),
                         tint = WrongRed
                     )
                 }
@@ -151,7 +154,7 @@ private fun BookmarkCard(bookmark: BookmarkedQuestionEntity, onRemove: () -> Uni
             bookmark.options.forEachIndexed { index, option ->
                 val isCorrect = index == bookmark.correct
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
+                    shape = MaterialTheme.shapes.medium,
                     color = if (isCorrect) CorrectGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface,
                     border = BorderStroke(1.5.dp, if (isCorrect) CorrectGreen else MaterialTheme.colorScheme.outlineVariant),
                     modifier = Modifier
@@ -170,7 +173,7 @@ private fun BookmarkCard(bookmark: BookmarkedQuestionEntity, onRemove: () -> Uni
                 }
             }
             Surface(
-                shape = RoundedCornerShape(12.dp),
+                shape = MaterialTheme.shapes.medium,
                 color = MaterialTheme.colorScheme.secondaryContainer,
                 modifier = Modifier.padding(top = 8.dp)
             ) {

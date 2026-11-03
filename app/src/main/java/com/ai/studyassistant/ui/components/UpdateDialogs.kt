@@ -9,19 +9,21 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
 
 @Composable
 fun UpdateAvailableDialog(onUpdate: () -> Unit, onCancel: () -> Unit) {
     AlertDialog(
         onDismissRequest = onCancel,
         icon = { Icon(imageVector = Icons.Default.SystemUpdate, contentDescription = null) },
-        title = { Text("Update available") },
-        text = { Text("A new version of ExamAI is available with new features and improvements. Update now for the best experience.") },
+        title = { Text(stringResource(R.string.update_update_available)) },
+        text = { Text(stringResource(R.string.update_a_new_version_of_examai)) },
         confirmButton = {
-            TextButton(onClick = onUpdate) { Text("Update") }
+            TextButton(onClick = onUpdate) { Text(stringResource(R.string.update_update)) }
         },
         dismissButton = {
-            TextButton(onClick = onCancel) { Text("Cancel") }
+            TextButton(onClick = onCancel) { Text(stringResource(R.string.reminders_cancel)) }
         }
     )
 }
@@ -31,13 +33,13 @@ fun UpdateReadyDialog(onRestart: () -> Unit, onLater: () -> Unit) {
     AlertDialog(
         onDismissRequest = onLater,
         icon = { Icon(imageVector = Icons.Default.SystemUpdate, contentDescription = null) },
-        title = { Text("Update downloaded") },
-        text = { Text("The update has finished downloading. Restart now to finish installing it.") },
+        title = { Text(stringResource(R.string.update_update_downloaded)) },
+        text = { Text(stringResource(R.string.update_the_update_has_finished_downloading)) },
         confirmButton = {
-            TextButton(onClick = onRestart) { Text("Restart") }
+            TextButton(onClick = onRestart) { Text(stringResource(R.string.update_restart)) }
         },
         dismissButton = {
-            TextButton(onClick = onLater) { Text("Later") }
+            TextButton(onClick = onLater) { Text(stringResource(R.string.update_later)) }
         }
     )
 }

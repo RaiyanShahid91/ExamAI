@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.ui.theme.BrandTeal
 import com.ai.studyassistant.ui.theme.BrandNavy
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
 
 @Composable
 fun GradientBackground(
@@ -68,14 +70,17 @@ fun GradientBackground(
 fun BackTopBar(
     title: String,
     onBack: () -> Unit,
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
+    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
+        titleContentColor = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+    ),
     actions: @Composable () -> Unit = {}
 ) {
     TopAppBar(
-        title = { Text(title) },
+        title = { Text(title, style = androidx.compose.material3.MaterialTheme.typography.titleLarge, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) },
         navigationIcon = {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.onboarding_back))
             }
         },
         actions = { actions() },
@@ -100,7 +105,7 @@ fun OfflineBanner(modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(end = 8.dp)
             )
             Text(
-                text = "You're offline — showing cached questions",
+                text = stringResource(R.string.common_components_you_re_offline_showing_cached),
                 color = androidx.compose.material3.MaterialTheme.colorScheme.onErrorContainer,
                 style = androidx.compose.material3.MaterialTheme.typography.bodySmall
             )
@@ -113,7 +118,7 @@ fun OfflineBanner(modifier: Modifier = Modifier) {
 private fun GradientBackgroundPreview() {
     AIStudyAssistantTheme {
         GradientBackground(colors = listOf(BrandNavy, BrandTeal)) {
-            Text(text = "Gradient content", color = Color.White, modifier = Modifier.padding(24.dp))
+            Text(text = stringResource(R.string.common_components_gradient_content), color = Color.White, modifier = Modifier.padding(24.dp))
         }
     }
 }
@@ -122,6 +127,6 @@ private fun GradientBackgroundPreview() {
 @Composable
 private fun BackTopBarPreview() {
     AIStudyAssistantTheme {
-        BackTopBar(title = "Physics", onBack = {})
+        BackTopBar(title = stringResource(R.string.common_components_physics), onBack = {})
     }
 }

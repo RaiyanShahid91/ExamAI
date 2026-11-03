@@ -15,6 +15,7 @@ import com.ai.studyassistant.data.repository.BookmarkRepository
 import com.ai.studyassistant.data.repository.ExamHistoryRepository
 import com.ai.studyassistant.data.repository.QuestionRepository
 import com.ai.studyassistant.data.repository.ReviewRepository
+import com.ai.studyassistant.widget.StudyWidgetProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.ai.studyassistant.i18n.LanguageManager
+import com.ai.studyassistant.R
 
 const val SECONDS_PER_QUESTION = 90
 
@@ -42,7 +45,9 @@ data class QuizUiState(
     val error: String? = null,
     val topicSummary: String? = null,
     val isTimed: Boolean = false,
-    val timeRemainingSeconds: Int? = null
+    val timeRemainingSeconds: Int? = null,
+    val isMockExam: Boolean = false,
+    val answeredCount: Int = 0
 ) {
     val currentQuestion: Question? get() = questions.getOrNull(currentIndex)
     val isLastQuestion: Boolean get() = currentIndex == questions.lastIndex
@@ -127,7 +132,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                         exam = exam,
                         subject = subject,
                         topic = topic,
-                        error = e.message ?: "Couldn't load questions. Check your connection and try again."
+                        error = e.message ?: msg(R.string.quiz_error_load)
                     )
                 }
             loadTopicSummary(topic)
@@ -156,7 +161,8 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                         topic = topic,
                         attemptId = attemptId,
                         questions = questions,
-                        isTimed = timed
+                        isTimed = timed,
+                        isMockExam = true
                     )
                     if (timed && durationSeconds != null) {
                         startCountdown(durationSeconds)
@@ -173,7 +179,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                         exam = exam,
                         subject = subject,
                         topic = topic,
-                        error = e.message ?: "Couldn't load the mock exam. Check your connection and try again."
+                        error = e.message ?: msg(R.string.quiz_error_load_mock)
                     )
                 }
         }
@@ -190,7 +196,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                     IllegalStateException("Attempt $attemptId not found on resume"),
                     context = "resumeAttempt"
                 )
-                _uiState.value = QuizUiState(error = "This attempt could not be found.")
+                _uiState.value = QuizUiState(error = msg(R.string.quiz_error_attempt_missing))
                 return@launch
             }
             val currentAnswer = attempt.answers.getOrNull(attempt.currentIndex) ?: -1
@@ -207,9 +213,11 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 selectedOptionIndex = currentAnswer.takeIf { it != -1 },
                 isAnswered = currentAnswer != -1,
                 score = score,
-                isTimed = attempt.isTimed
+                isTimed = attempt.isTimed,
+                isMockExam = attempt.isMockExam,
+                answeredCount = attempt.answers.count { it != -1 }
             )
-            loadTopicSummary(attempt.topic)
+            viewModelScope.launch { loadTopicSummary(attempt.topic) }
             AnalyticsManager.logEvent(
                 "quiz_resumed",
                 mapOf(
@@ -247,7 +255,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         try {
             val summary = wikipediaService.getSummary(topic.replace(" ", "_")).extract
             if (summary.isNotBlank()) {
-                _uiState.update { it.copy(topicSummary = summary) }
+                _uiState.update { if (it.topic == topic) it.copy(topicSummary = summary) else it }
             }
         } catch (e: Exception) {
             // Optional supplementary content — non-fatal to the quiz flow, but still worth
@@ -259,13 +267,14 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
     fun selectAnswer(index: Int) {
         val state = _uiState.value
         val question = state.currentQuestion ?: return
-        if (state.isAnswered) return
+        if (state.isAnswered || index !in question.options.indices) return
         val isCorrect = index == question.correct
         _uiState.update {
             it.copy(
                 selectedOptionIndex = index,
                 isAnswered = true,
-                score = if (isCorrect) it.score + 1 else it.score
+                score = if (isCorrect) it.score + 1 else it.score,
+                answeredCount = it.answeredCount + 1
             )
         }
         AnalyticsManager.logEvent(
@@ -285,6 +294,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
 
     fun nextQuestion() {
         val state = _uiState.value
+        if (!state.isAnswered || state.isLastQuestion) return
         AnalyticsManager.logEvent(
             "next_question_clicked",
             mapOf("exam" to state.exam, "subject" to state.subject, "topic" to state.topic, "question_index" to state.currentIndex)
@@ -312,11 +322,15 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun msg(@androidx.annotation.StringRes id: Int, vararg args: Any): String =
+        LanguageManager.localized(getApplication<Application>()).getString(id, *args)
+
     fun finishAttempt() {
         timerJob?.cancel()
         val attemptId = _uiState.value.attemptId ?: return
         viewModelScope.launch {
             historyRepository.finishAttempt(attemptId)
+            StudyWidgetProvider.refresh(getApplication())
         }
     }
 }

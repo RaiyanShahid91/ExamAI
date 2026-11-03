@@ -46,6 +46,8 @@ import com.ai.studyassistant.ui.theme.WrongRed
 import com.ai.studyassistant.viewmodel.HistoryViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
 
 @Composable
 fun AttemptDetailScreen(
@@ -64,7 +66,7 @@ fun AttemptDetailScreen(
         topBar = {
             Column {
                 BackTopBar(
-                    title = detail?.topic ?: "Review",
+                    title = detail?.topic ?: stringResource(R.string.attempt_review),
                     onBack = onBack,
                     actions = {
                         if (detail != null) {
@@ -75,11 +77,11 @@ fun AttemptDetailScreen(
                                 )
                                 val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                     type = "text/plain"
-                                    putExtra(Intent.EXTRA_TEXT, buildReportText(detail!!))
+                                    putExtra(Intent.EXTRA_TEXT, buildReportText(context, detail!!))
                                 }
-                                context.startActivity(Intent.createChooser(shareIntent, "Share report"))
+                                context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.attempt_detail_share_report)))
                             }) {
-                                Icon(imageVector = Icons.Default.Share, contentDescription = "Share Report")
+                                Icon(imageVector = Icons.Default.Share, contentDescription = stringResource(R.string.attempt_detail_share_report))
                             }
                         }
                     }
@@ -101,22 +103,22 @@ fun AttemptDetailScreen(
     }
 }
 
-private fun buildReportText(attempt: ExamAttemptSummary): String {
+private fun buildReportText(context: android.content.Context, attempt: ExamAttemptSummary): String {
     val header = buildString {
-        append("ExamAI Report — ${attempt.exam} • ${attempt.subject} • ${attempt.topic}\n")
-        append("Score: ${attempt.score}/${attempt.total}\n")
-        append("Date: ${formatDateTime(attempt.startTime)}\n")
-        append("Duration: ${formatDuration(attempt.durationMillis)}\n\n")
+        append(context.getString(R.string.report_title, attempt.exam, attempt.subject, attempt.topic)).append("\n")
+        append(context.getString(R.string.report_score, attempt.score, attempt.total)).append("\n")
+        append(context.getString(R.string.report_date, formatDateTime(attempt.startTime))).append("\n")
+        append(context.getString(R.string.report_duration, formatDuration(context, attempt.durationMillis))).append("\n\n")
     }
     val questions = attempt.questions.mapIndexed { index, question ->
         val userAnswer = attempt.answers.getOrNull(index) ?: -1
-        val userAnswerText = question.options.getOrNull(userAnswer) ?: "Not answered"
+        val userAnswerText = question.options.getOrNull(userAnswer) ?: context.getString(R.string.report_not_answered)
         val correctAnswerText = question.options.getOrNull(question.correct).orEmpty()
         buildString {
             append("Q${index + 1}. ${question.question}\n")
-            append("Your answer: $userAnswerText\n")
-            append("Correct answer: $correctAnswerText\n")
-            append("Explanation: ${question.explanation}\n")
+            append(context.getString(R.string.report_your_answer, userAnswerText)).append("\n")
+            append(context.getString(R.string.report_correct_answer, correctAnswerText)).append("\n")
+            append(context.getString(R.string.report_explanation, question.explanation)).append("\n")
         }
     }.joinToString("\n")
     return header + questions
@@ -144,7 +146,7 @@ private fun AttemptDetailContent(attempt: ExamAttemptSummary) {
 @Composable
 private fun SummaryHeader(attempt: ExamAttemptSummary) {
     Surface(
-        shape = RoundedCornerShape(18.dp),
+        shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.primaryContainer,
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -165,7 +167,7 @@ private fun SummaryHeader(attempt: ExamAttemptSummary) {
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = "  •  ${formatDuration(attempt.durationMillis)}",
+                    text = "  •  ${formatDuration(LocalContext.current, attempt.durationMillis)}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -177,12 +179,12 @@ private fun SummaryHeader(attempt: ExamAttemptSummary) {
 private fun QuestionReviewCard(index: Int, question: Question, userAnswer: Int) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
             Text(
-                text = "Question ${index + 1}",
+                text = stringResource(R.string.attempt_detail_question, index + 1),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -203,7 +205,7 @@ private fun QuestionReviewCard(index: Int, question: Question, userAnswer: Int) 
 
             if (userAnswer == -1) {
                 Text(
-                    text = "Not answered",
+                    text = stringResource(R.string.attempt_detail_not_answered),
                     style = MaterialTheme.typography.bodySmall,
                     color = WrongRed,
                     modifier = Modifier.padding(top = 4.dp)
@@ -211,7 +213,7 @@ private fun QuestionReviewCard(index: Int, question: Question, userAnswer: Int) 
             }
 
             Surface(
-                shape = RoundedCornerShape(12.dp),
+                shape = MaterialTheme.shapes.medium,
                 color = MaterialTheme.colorScheme.secondaryContainer,
                 modifier = Modifier.padding(top = 12.dp)
             ) {
@@ -239,7 +241,7 @@ private fun ReviewOptionRow(text: String, isCorrectOption: Boolean, isUserChoice
     }
 
     Surface(
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.medium,
         color = containerColor,
         border = BorderStroke(1.5.dp, borderColor),
         modifier = Modifier
@@ -269,12 +271,10 @@ private fun ReviewOptionRow(text: String, isCorrectOption: Boolean, isUserChoice
 private fun formatDateTime(millis: Long): String =
     SimpleDateFormat("MMM d, yyyy • h:mm a", Locale.getDefault()).format(millis)
 
-private fun formatDuration(millis: Long?): String {
-    if (millis == null) return "In progress"
+private fun formatDuration(context: android.content.Context, millis: Long?): String {
+    if (millis == null) return context.getString(R.string.duration_in_progress)
     val totalSeconds = millis / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return "${minutes}m ${seconds}s"
+    return context.getString(R.string.duration_min_sec, totalSeconds / 60, totalSeconds % 60)
 }
 
 private val samplePreviewAttempt = ExamAttemptSummary(

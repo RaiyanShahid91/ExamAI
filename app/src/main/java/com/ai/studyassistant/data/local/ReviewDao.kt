@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ReviewDao {
 
+    @Query("SELECT * FROM review_items")
+    fun observeAll(): Flow<List<ReviewItemEntity>>
+
     @Query("SELECT * FROM review_items WHERE dueAt <= :now ORDER BY dueAt ASC LIMIT :limit")
     suspend fun getDue(now: Long, limit: Int): List<ReviewItemEntity>
 

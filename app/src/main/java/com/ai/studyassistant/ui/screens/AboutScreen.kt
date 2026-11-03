@@ -66,6 +66,8 @@ private fun AboutScreenContent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AppInfoSection()
+            com.ai.studyassistant.ui.components.BrynflowLearningCard("about")
+            com.ai.studyassistant.ui.components.SupportContactCard()
             DisclaimerCardAbout()
             OfficialSourcesCard()
             FeaturesCard()
@@ -75,19 +77,21 @@ private fun AboutScreenContent(
 
 @Composable
 private fun AppInfoSection() {
+    val context = LocalContext.current
+    val version = androidx.compose.runtime.remember(context) { context.packageManager.getPackageInfo(context.packageName, 0).versionName.orEmpty() }
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Surface(
             shape = CircleShape,
-            color = BrandNavy.copy(alpha = 0.12f),
+            color = MaterialTheme.colorScheme.primaryContainer,
             modifier = Modifier.size(72.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.School,
                 contentDescription = null,
-                tint = BrandNavy,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(16.dp)
             )
         }
@@ -98,7 +102,7 @@ private fun AppInfoSection() {
             modifier = Modifier.padding(top = 12.dp)
         )
         Text(
-            text = "Version 1.0.2",
+            text = "Version $version",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp)

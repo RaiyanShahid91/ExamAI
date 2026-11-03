@@ -1,39 +1,36 @@
 package com.ai.studyassistant.ui.components
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import com.ai.studyassistant.ads.ADS_ENABLED
-import com.ai.studyassistant.ads.AdIds
-import com.ai.studyassistant.ads.ConsentManager
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
+import com.ai.studyassistant.ads.*
+import com.ai.studyassistant.analytics.AnalyticsManager
+import com.google.android.gms.ads.*
 
-/**
- * A standard (320x50) banner ad, only rendered once Mobile Ads has finished
- * initializing (post-consent). Renders nothing beforehand or if ads fail to load,
- * so it never leaves a dead gap in the layout.
- */
+/** Banner inventory is suppressed immediately when an earned focus break starts. */
 @Composable
 fun BannerAdView(modifier: Modifier = Modifier) {
     if (!ADS_ENABLED) return
     val adsReady by ConsentManager.adsReady.collectAsState()
-    if (!adsReady) return
-
+    val focusMinutes by AdExperience.remainingMinutes.collectAsState()
+    if (!adsReady || focusMinutes > 0) return
     val context = LocalContext.current
-    AndroidView(
-        modifier = modifier.fillMaxWidth(),
-        factory = {
-            AdView(context).apply {
-                setAdSize(AdSize.BANNER)
-                adUnitId = AdIds.BANNER
-                loadAd(AdRequest.Builder().build())
+    val adView = remember(context) {
+        AdView(context).apply {
+            setAdSize(AdSize.BANNER)
+            adUnitId = AdIds.banner(context)
+            setOnPaidEventListener { value ->
+                AnalyticsManager.logEvent("ad_revenue", mapOf("format" to "banner", "value_micros" to value.valueMicros, "currency" to value.currencyCode))
             }
+            loadAd(AdRequest.Builder().build())
         }
-    )
+    }
+    DisposableEffect(adView) { onDispose { adView.destroy() } }
+    Box(modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        AndroidView(factory = { adView })
+    }
 }

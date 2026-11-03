@@ -2,6 +2,11 @@ package com.ai.studyassistant
 
 import android.graphics.Color as AndroidColor
 import android.os.Bundle
+import android.content.Intent
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import com.ai.studyassistant.notification.ReminderScheduler
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -12,10 +17,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.SideEffect
+import androidx.core.view.WindowCompat
+import com.ai.studyassistant.data.local.AppearancePreferences
+import com.ai.studyassistant.ui.theme.ThemeMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,28 +47,96 @@ import com.ai.studyassistant.viewmodel.UpdateViewModel
 import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(com.ai.studyassistant.i18n.LanguageManager.wrap(newBase))
+    }
+
+    private var reminderDestination by mutableStateOf<String?>(null)
+    private var notificationLaunchToken by mutableIntStateOf(0)
+    private var checkPermissionOnReturn = false
+    private var returningFromNotificationSettings = false
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (!com.ai.studyassistant.ads.AdExperience.fullscreenShowing) checkPermissionOnReturn = true
+    }
+    override fun onResume() {
+        super.onResume()
+        if (returningFromNotificationSettings) {
+            returningFromNotificationSettings = false
+            checkPermissionOnReturn = false
+        } else if (checkPermissionOnReturn) {
+            checkPermissionOnReturn = false
+            notificationLaunchToken++
+        }
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt("notification_launch_token", notificationLaunchToken)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.action == Intent.ACTION_MAIN) checkPermissionOnReturn = true
+        reminderDestination = intent.getStringExtra(ReminderScheduler.TARGET)
+    }
+    override fun onStart() {
+        super.onStart()
+        ReminderScheduler.appInForeground = true
+        lifecycleScope.launch { ReminderScheduler.restore(applicationContext) }
+    }
+    override fun onStop() {
+        if (!isChangingConfigurations && !returningFromNotificationSettings && !com.ai.studyassistant.ads.AdExperience.fullscreenShowing) {
+            checkPermissionOnReturn = true
+        }
+        ReminderScheduler.appInForeground = false
+        super.onStop()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Android enforces edge-to-edge from API 35+, so the scrim colors below are mostly
-        // decorative (the platform keeps system bars transparent regardless) — the part that
-        // actually and reliably applies is the icon appearance. Most screens have a light top
-        // bar, so dark icons are the right default; do not switch this back to .dark()/light
-        // icons without checking every screen's top-bar color first.
+        com.ai.studyassistant.widget.StudyWidgetProvider.refresh(this)
+        com.ai.studyassistant.notification.NotificationHelper.ensureChannel(this)
+        notificationLaunchToken = savedInstanceState?.getInt("notification_launch_token") ?: 0
+        reminderDestination = intent.getStringExtra(ReminderScheduler.TARGET)
+        // Keep bars transparent; the selected appearance controls icon contrast below.
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(AndroidColor.TRANSPARENT, AndroidColor.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.light(AndroidColor.TRANSPARENT, AndroidColor.TRANSPARENT)
         )
         ConsentManager.requestConsentAndInitialize(this)
         setContent {
-            AIStudyAssistantTheme {
-                ExamAIApp()
+            val preferences = remember { AppearancePreferences(applicationContext) }
+            val appearance by preferences.settings.collectAsState(initial = null)
+            val settings = appearance
+            if (settings != null) {
+                val dark = when (settings.mode) {
+                    ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                    ThemeMode.LIGHT -> false
+                    ThemeMode.DARK -> true
+                }
+                SideEffect {
+                    WindowCompat.getInsetsController(window, window.decorView).apply {
+                        isAppearanceLightStatusBars = !dark
+                        isAppearanceLightNavigationBars = !dark
+                    }
+                }
+                AIStudyAssistantTheme(darkTheme = dark, palette = settings.palette) {
+                    com.ai.studyassistant.ui.components.StartupNotificationPermission(notificationLaunchToken) {
+                        returningFromNotificationSettings = true
+                    }
+                    ExamAIApp(reminderDestination) {
+                        reminderDestination = null
+                        intent.removeExtra(ReminderScheduler.TARGET)
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun ExamAIApp() {
+private fun ExamAIApp(notificationTarget: String?, onNotificationConsumed: () -> Unit) {
     val context = LocalContext.current
     var startDestination by remember { mutableStateOf<String?>(null) }
 
@@ -80,6 +159,16 @@ private fun ExamAIApp() {
     }
 
     val navController = rememberNavController()
+    val entry by navController.currentBackStackEntryAsState()
+    LaunchedEffect(notificationTarget, entry?.destination?.route) {
+        val target = notificationTarget
+        if (target != null && entry != null && entry?.destination?.route != Routes.ONBOARDING) {
+            if (target in listOf(Routes.HOME, Routes.HISTORY, Routes.REVIEW, Routes.REMINDERS) || com.ai.studyassistant.data.model.ExamData.exams.any { exam -> com.ai.studyassistant.data.model.ExamData.subjectsFor(exam.name).any { subject -> target == Routes.topic(exam.name, subject.name) } }) {
+                navController.navigate(target) { launchSingleTop = true }
+            }
+            onNotificationConsumed()
+        }
+    }
     val viewModel: QuizViewModel = viewModel()
     val updateViewModel: UpdateViewModel = viewModel()
     val updateUiState by updateViewModel.uiState.collectAsState()

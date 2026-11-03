@@ -37,12 +37,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -61,6 +65,8 @@ import com.ai.studyassistant.ui.theme.WrongRed
 import com.ai.studyassistant.ui.util.findActivity
 import com.ai.studyassistant.viewmodel.QuizUiState
 import com.ai.studyassistant.viewmodel.QuizViewModel
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
 
 @Composable
 fun QuizScreen(
@@ -80,10 +86,11 @@ fun QuizScreen(
     val isOffline by viewModel.isOffline.collectAsState()
     val context = LocalContext.current
 
-    // The score reveal is gated behind an interstitial so it plays before every result,
-    // not after landing on it — falls straight through to onFinished if no ad is ready
-    // (no activity, load still in flight, fill failure) so a slow/missing ad never blocks.
-    val finishAndShowResult: () -> Unit = {
+    // A capped interstitial may show at completion; unavailable ads never block results.
+    var finishing by remember(exam, subject, topic, attemptId, mockExam) { mutableStateOf(false) }
+    val finishAndShowResult: () -> Unit = finish@{
+        if (finishing) return@finish
+        finishing = true
         viewModel.finishAttempt()
         val activity = context.findActivity()
         if (activity != null) {
@@ -167,7 +174,7 @@ private fun QuizError(message: String, onRetry: () -> Unit) {
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
         Button(onClick = onRetry, modifier = Modifier.padding(top = 16.dp)) {
-            Text("Retry")
+            Text(stringResource(R.string.quiz_retry))
         }
     }
 }
@@ -190,7 +197,7 @@ private fun QuizContent(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "Question ${uiState.currentIndex + 1} of ${uiState.questions.size}",
+                text = stringResource(R.string.quiz_question_of, uiState.currentIndex + 1, uiState.questions.size),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f)
@@ -201,7 +208,7 @@ private fun QuizContent(
             IconButton(onClick = onToggleBookmark) {
                 Icon(
                     imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                    contentDescription = "Bookmark question",
+                    contentDescription = stringResource(R.string.quiz_bookmark_question),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -214,13 +221,16 @@ private fun QuizContent(
         )
 
         AnimatedContent(
-            targetState = uiState.currentIndex,
+            targetState = uiState,
+            contentKey = { it.currentIndex },
             transitionSpec = {
                 (slideInHorizontally(tween(280)) { it / 3 } + fadeIn(tween(280))) togetherWith
                     (slideOutHorizontally(tween(220)) { -it / 3 } + fadeOut(tween(220)))
             },
             label = "questionTransition"
-        ) { _ ->
+        ) { displayedState ->
+            val question = displayedState.currentQuestion ?: return@AnimatedContent
+            val uiState = displayedState
             Column {
                 Surface(
                     shape = MaterialTheme.shapes.medium,
@@ -273,7 +283,7 @@ private fun QuizContent(
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    text = "From Wikipedia",
+                                    text = stringResource(R.string.quiz_from_wikipedia),
                                     style = MaterialTheme.typography.labelLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
@@ -290,11 +300,12 @@ private fun QuizContent(
                     Button(
                         onClick = onNext,
                         modifier = Modifier
+                            .testTag("quiz_next")
                             .fillMaxWidth()
                             .padding(top = 20.dp)
                             .bounceClick()
                     ) {
-                        Text(if (uiState.isLastQuestion) "See Result" else "Next Question")
+                        Text(if (uiState.isLastQuestion) stringResource(R.string.quiz_see_result) else stringResource(R.string.common_next_question))
                     }
                 }
             }
@@ -334,7 +345,7 @@ private fun TimerChip(secondsRemaining: Int) {
         ) {
             Icon(
                 imageVector = Icons.Default.Timer,
-                contentDescription = "Time remaining",
+                contentDescription = stringResource(R.string.quiz_time_remaining),
                 tint = if (isLow) WrongRed else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(end = 4.dp)
             )
@@ -374,13 +385,14 @@ private fun OptionCard(
     val borderColor by animateColorAsState(targetBorderColor, tween(300), label = "optionBorderColor")
 
     Surface(
-        shape = RoundedCornerShape(14.dp),
+        shape = MaterialTheme.shapes.medium,
         color = containerColor,
         border = androidx.compose.foundation.BorderStroke(1.5.dp, borderColor),
         onClick = onClick,
         enabled = !uiState.isAnswered,
         modifier = Modifier
             .fillMaxWidth()
+            .testTag("quiz_answer_$index")
             .bounceClick()
     ) {
         Box(modifier = Modifier.padding(16.dp)) {
@@ -388,6 +400,9 @@ private fun OptionCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Surface(shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.padding(end = 12.dp)) {
+                    Text(('A'.code + index).toChar().toString(), color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
+                }
                 Text(
                     text = text,
                     style = MaterialTheme.typography.bodyLarge,
@@ -446,7 +461,7 @@ private fun QuizContentAnsweredPreview() {
 @Composable
 private fun QuizErrorPreview() {
     AIStudyAssistantTheme {
-        QuizError(message = "Couldn't load questions. Check your connection and try again.", onRetry = {})
+        QuizError(message = stringResource(R.string.quiz_couldn_t_load_questions_check), onRetry = {})
     }
 }
 
@@ -455,7 +470,7 @@ private fun QuizErrorPreview() {
 private fun OptionCardPreview() {
     AIStudyAssistantTheme {
         OptionCard(
-            text = "Newton",
+            text = stringResource(R.string.quiz_newton),
             index = 0,
             question = sampleQuestion,
             uiState = QuizUiState(questions = listOf(sampleQuestion), selectedOptionIndex = 0, isAnswered = true),

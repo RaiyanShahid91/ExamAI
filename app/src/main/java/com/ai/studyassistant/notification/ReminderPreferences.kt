@@ -11,7 +11,7 @@ private val Context.reminderDataStore by preferencesDataStore(name = "reminder_p
 
 class ReminderPreferences(private val context: Context) {
 
-    private val keyEnabled = booleanPreferencesKey("daily_reminder_enabled")
+    private val keyEnabled = booleanPreferencesKey("daily_reminder_opt_in_v2")
 
     val isEnabled: Flow<Boolean> = context.reminderDataStore.data.map { it[keyEnabled] ?: false }
 

@@ -28,7 +28,7 @@ private const val COLOR_WHITE = 0xFFFFFFFF.toInt()
  */
 object ScoreCardRenderer {
 
-    fun render(examLabel: String, score: Int, total: Int, message: String, emoji: String): Bitmap {
+    fun render(examLabel: String, score: Int, total: Int, message: String, emoji: String, tagline: String): Bitmap {
         val bitmap = createBitmap(CARD_WIDTH, CARD_HEIGHT)
         val canvas = Canvas(bitmap)
 
@@ -99,7 +99,7 @@ object ScoreCardRenderer {
             textAlign = Paint.Align.CENTER
         }
         canvas.drawText(
-            "Free JEE, NEET & UPSC prep",
+            tagline,
             badgeCenterX,
             footerRect.centerY() + 30f,
             taglinePaint

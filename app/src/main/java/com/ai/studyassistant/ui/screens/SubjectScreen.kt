@@ -3,7 +3,7 @@ package com.ai.studyassistant.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,7 +13,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Icon
@@ -35,6 +35,8 @@ import com.ai.studyassistant.ui.components.StaggeredEntrance
 import com.ai.studyassistant.ui.components.bounceClick
 import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.ui.theme.BrandNavy
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
 
 @Composable
 fun SubjectScreen(
@@ -48,13 +50,13 @@ fun SubjectScreen(
     Scaffold(
         topBar = {
             Column {
-                BackTopBar(title = "$exam Subjects", onBack = onBack)
+                BackTopBar(title = stringResource(R.string.subject_subjects, exam), onBack = onBack)
                 BannerAdView()
             }
         }
     ) { padding ->
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Adaptive(160.dp),
             contentPadding = PaddingValues(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -63,9 +65,15 @@ fun SubjectScreen(
                 .padding(padding)
         ) {
             item(span = { GridItemSpan(maxLineSpan) }) {
+                com.ai.studyassistant.ui.components.ScreenIntro(stringResource(R.string.subject_find_your_focus), stringResource(R.string.subject_explore_exam_subjects, exam))
+            }
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 StaggeredEntrance(index = 0) {
                     MockExamCard(exam = exam, onClick = onMockExam)
                 }
+            }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                com.ai.studyassistant.ui.components.BrynflowLearningCard("subjects")
             }
             itemsIndexed(subjects) { index, subject ->
                 StaggeredEntrance(index = index + 1) {
@@ -98,17 +106,17 @@ private fun MockExamCard(exam: String, onClick: () -> Unit) {
             )
             androidx.compose.foundation.layout.Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Take Full Mock Test",
+                    text = stringResource(R.string.subject_take_full_mock_test),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Timed, mixed questions across all $exam subjects",
+                    text = stringResource(R.string.subject_timed_mixed_questions_across_all, exam),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null)
+            Icon(imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
         }
     }
 }
@@ -117,11 +125,11 @@ private fun MockExamCard(exam: String, onClick: () -> Unit) {
 private fun SubjectCard(subject: Subject, onClick: () -> Unit) {
     Surface(
         shape = MaterialTheme.shapes.large,
-        color = subject.color.copy(alpha = 0.16f),
+        color = MaterialTheme.colorScheme.surface,
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f)
+            .heightIn(min = 156.dp)
             .bounceClick()
     ) {
         Column(
@@ -134,7 +142,7 @@ private fun SubjectCard(subject: Subject, onClick: () -> Unit) {
             Icon(
                 imageVector = subject.icon,
                 contentDescription = subject.name,
-                tint = subject.color,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             Text(

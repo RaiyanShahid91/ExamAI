@@ -1,10 +1,13 @@
 package com.ai.studyassistant.viewmodel
 
-import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.ai.studyassistant.ads.RewardedAdManager
+import com.ai.studyassistant.ads.ADS_ENABLED
+import com.ai.studyassistant.ads.SearchBalance
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import java.time.LocalDate
 import com.ai.studyassistant.analytics.AnalyticsManager
 import com.ai.studyassistant.data.model.StudyNote
 import com.ai.studyassistant.data.repository.NotesRepository
@@ -13,6 +16,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.ai.studyassistant.i18n.LanguageManager
+import com.ai.studyassistant.R
 
 private const val FREE_SEARCHES_PER_UNLOCK = 2
 
@@ -28,7 +33,23 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = NotesRepository(application)
 
-    private val _uiState = MutableStateFlow(NotesUiState())
+    private val allowance = application.getSharedPreferences("note_search_allowance", Application.MODE_PRIVATE)
+    private fun remaining(): Int {
+        val day = LocalDate.now().toString()
+        if (allowance.getString("day", null) != day) {
+            // Daily free searches replenish without discarding unused earned searches.
+            val updated = SearchBalance(allowance.getInt("remaining", 0), allowance.getInt("free_remaining", 0)).nextDay()
+            allowance.edit().putString("day", day).putInt("remaining", updated.total)
+                .putInt("free_remaining", updated.dailyFree).apply()
+        }
+        return allowance.getInt("remaining", FREE_SEARCHES_PER_UNLOCK)
+    }
+    private fun consumeSearch() {
+        val balance = remaining()
+        val updated = SearchBalance(balance, allowance.getInt("free_remaining", 0)).consume()
+        allowance.edit().putInt("remaining", updated.total).putInt("free_remaining", updated.dailyFree).apply()
+    }
+    private val _uiState = MutableStateFlow(NotesUiState(freeSearchesRemaining = remaining()))
     val uiState: StateFlow<NotesUiState> = _uiState.asStateFlow()
 
     init {
@@ -37,56 +58,54 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
                 _uiState.update { it.copy(savedNotes = notes) }
             }
         }
-        RewardedAdManager.preload(application)
+        viewModelScope.launch {
+            while (isActive) {
+                _uiState.update { it.copy(freeSearchesRemaining = remaining()) }
+                delay(30_000)
+            }
+        }
     }
 
-    /**
-     * Gate in front of [fetchNote]: the first two searches per unlock are free, then a
-     * rewarded ad must be watched (and the reward actually earned) before the next two.
-     * Falls through to a plain search if there's no Activity to show the ad in, rather
-     * than stalling the user on a gate that can't be shown.
-     */
-    fun search(topic: String, activity: Activity?) {
-        if (topic.isBlank()) return
-        if (_uiState.value.freeSearchesRemaining > 0 || activity == null) {
-            _uiState.update { it.copy(freeSearchesRemaining = (it.freeSearchesRemaining - 1).coerceAtLeast(0)) }
-            fetchNote(topic)
+    fun search(topic: String) {
+        val cleaned = topic.trim()
+        if (cleaned.isBlank() || _uiState.value.isLoading) return
+        val saved = _uiState.value.savedNotes.firstOrNull { it.topic.equals(cleaned, ignoreCase = true) }
+        if (saved != null) { openSaved(saved); return }
+        val balance = remaining()
+        _uiState.update { it.copy(freeSearchesRemaining = balance) }
+        if (ADS_ENABLED && balance <= 0) {
+            _uiState.update { it.copy(error = msg(R.string.notes_error_no_searches)) }
             return
         }
-
-        AnalyticsManager.logEvent("notes_search_ad_gate_shown", mapOf("topic" to topic))
-        var rewardEarned = false
-        RewardedAdManager.showIfAvailable(
-            activity,
-            onRewarded = { amount ->
-                rewardEarned = true
-                // amount is whatever this ad unit's reward is configured as in the AdMob
-                // console (currently 2) — this search uses one of the granted searches.
-                _uiState.update { it.copy(freeSearchesRemaining = (amount - 1).coerceAtLeast(0)) }
-                fetchNote(topic)
-            },
-            onDismissed = {
-                if (!rewardEarned) {
-                    _uiState.update {
-                        it.copy(error = "Watch a short ad to unlock 2 more searches — no ad is ready yet, please try again in a moment.")
-                    }
-                }
-                RewardedAdManager.preload(getApplication())
-            }
-        )
+        fetchNote(cleaned, consumeCredit = ADS_ENABLED)
     }
 
-    fun fetchNote(topic: String) {
+    private fun msg(@androidx.annotation.StringRes id: Int, vararg args: Any): String =
+        LanguageManager.localized(getApplication<Application>()).getString(id, *args)
+
+    fun grantSearches() {
+        val updated = SearchBalance(remaining(), allowance.getInt("free_remaining", 0)).reward()
+        allowance.edit().putInt("remaining", updated.total).apply()
+        _uiState.update { it.copy(freeSearchesRemaining = remaining(), error = null) }
+    }
+
+    fun openSaved(note: StudyNote) {
+        if (_uiState.value.isLoading) return
+        _uiState.update { it.copy(note = note, error = null) }
+    }
+
+    private fun fetchNote(topic: String, consumeCredit: Boolean) {
         AnalyticsManager.logEvent("note_searched", mapOf("topic" to topic))
         _uiState.update { it.copy(isLoading = true, error = null, note = null) }
         viewModelScope.launch {
             repository.fetchSummary(topic)
-                .onSuccess { note -> _uiState.update { it.copy(isLoading = false, note = note) } }
+                .onSuccess { note ->
+                    if (consumeCredit) consumeSearch()
+                    _uiState.update { it.copy(isLoading = false, note = note, freeSearchesRemaining = remaining()) }
+                }
                 .onFailure { e ->
                     AnalyticsManager.recordNonFatal(e, context = "fetchNote($topic)")
-                    _uiState.update {
-                        it.copy(isLoading = false, error = e.message ?: "Couldn't fetch notes for $topic.")
-                    }
+                    _uiState.update { it.copy(isLoading = false, error = e.message ?: msg(R.string.notes_error_fetch_topic, topic)) }
                 }
         }
     }

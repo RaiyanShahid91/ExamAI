@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import com.ai.studyassistant.i18n.LanguageManager
+import com.ai.studyassistant.R
 
 data class UpdateUiState(
     val availableUpdateInfo: AppUpdateInfo? = null,
@@ -53,8 +55,11 @@ class UpdateViewModel(application: Application) : AndroidViewModel(application) 
             },
             onNotAvailable = {
                 if (manual) {
-                    _uiState.update { it.copy(statusMessage = "You're on the latest version.") }
+                    _uiState.update { it.copy(statusMessage = msg(R.string.update_latest_version)) }
                 }
+            },
+            onFailure = {
+                if (manual) _uiState.update { it.copy(statusMessage = msg(R.string.update_check_failed)) }
             }
         )
     }
@@ -64,6 +69,9 @@ class UpdateViewModel(application: Application) : AndroidViewModel(application) 
         UpdateManager.startFlexibleUpdate(activity, info, launcher)
         _uiState.update { it.copy(showDialog = false) }
     }
+
+    private fun msg(@androidx.annotation.StringRes id: Int, vararg args: Any): String =
+        LanguageManager.localized(getApplication<Application>()).getString(id, *args)
 
     fun dismissDialog() {
         _uiState.update { it.copy(showDialog = false) }

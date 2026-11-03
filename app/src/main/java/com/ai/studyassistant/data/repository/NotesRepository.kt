@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.io.IOException
+import com.ai.studyassistant.i18n.LanguageManager
+import com.ai.studyassistant.R
 
 class NotesRepository(
     private val context: Context,
@@ -23,7 +25,7 @@ class NotesRepository(
             return if (cached != null) {
                 Result.success(cached.toStudyNote())
             } else {
-                Result.failure(IOException("No internet connection. Connect to Wi-Fi or mobile data and try again."))
+                Result.failure(IOException(LanguageManager.localized(context).getString(R.string.notes_repo_no_internet)))
             }
         }
 
@@ -49,15 +51,14 @@ class NotesRepository(
         }
     }
 
-    private fun friendlyMessage(topic: String, e: Exception): String = when {
-        e is HttpException && e.code() == 404 ->
-            "Couldn't find a Wikipedia article for \"$topic\". Try a more specific or different search term."
-        e is HttpException && (e.code() == 403 || e.code() == 429) ->
-            "Wikipedia is temporarily blocking requests from this network. Please try again in a moment."
-        e is IOException ->
-            "No internet connection. Connect to Wi-Fi or mobile data and try again."
-        else ->
-            "Couldn't fetch notes for \"$topic\" right now. Please try again."
+    private fun friendlyMessage(topic: String, e: Exception): String {
+        val c = LanguageManager.localized(context)
+        return when {
+            e is HttpException && e.code() == 404 -> c.getString(R.string.notes_repo_not_found, topic)
+            e is HttpException && (e.code() == 403 || e.code() == 429) -> c.getString(R.string.notes_repo_blocked)
+            e is IOException -> c.getString(R.string.notes_repo_no_internet)
+            else -> c.getString(R.string.notes_repo_fetch_failed, topic)
+        }
     }
 
     suspend fun saveNote(note: StudyNote) {

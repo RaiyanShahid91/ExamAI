@@ -19,3 +19,6 @@ app/schemas/
 
 # Claude Code local state
 .claude/
+
+# Kotlin compiler local state
+.kotlin/

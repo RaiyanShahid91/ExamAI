@@ -14,9 +14,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         SavedNoteEntity::class,
         ExamAttemptEntity::class,
         BookmarkedQuestionEntity::class,
-        ReviewItemEntity::class
+        ReviewItemEntity::class,
+        PersonalReminderEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -27,6 +28,7 @@ abstract class QuizDatabase : RoomDatabase() {
     abstract fun examAttemptDao(): ExamAttemptDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun reviewDao(): ReviewDao
+    abstract fun personalReminderDao(): PersonalReminderDao
 
     companion object {
         @Volatile private var INSTANCE: QuizDatabase? = null
@@ -98,13 +100,19 @@ abstract class QuizDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS personal_reminders (id TEXT NOT NULL PRIMARY KEY, title TEXT NOT NULL, note TEXT NOT NULL, scheduledAt INTEGER NOT NULL, delivered INTEGER NOT NULL)")
+            }
+        }
+
         fun getInstance(context: Context): QuizDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     QuizDatabase::class.java,
                     "exam_ai.db"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build().also { INSTANCE = it }
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build().also { INSTANCE = it }
             }
     }
 }

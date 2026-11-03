@@ -5,6 +5,9 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ai.studyassistant.analytics.AnalyticsManager
+import com.ai.studyassistant.data.model.MarkingScheme
 import com.ai.studyassistant.ui.components.AnimatedCounter
 import com.ai.studyassistant.ui.components.BannerAdView
 import com.ai.studyassistant.ui.components.GradientBackground
@@ -48,6 +52,8 @@ import com.ai.studyassistant.ui.theme.AIStudyAssistantTheme
 import com.ai.studyassistant.ui.theme.BrandNavy
 import com.ai.studyassistant.ui.theme.GradientTokens
 import com.ai.studyassistant.viewmodel.QuizViewModel
+import androidx.compose.ui.res.stringResource
+import com.ai.studyassistant.R
 
 @Composable
 fun ResultScreen(
@@ -62,13 +68,29 @@ fun ResultScreen(
     val score = uiState.score
     val context = LocalContext.current
 
+    val answered = uiState.answeredCount.coerceIn(score, total)
+    val wrong = answered - score
+    val skipped = total - answered
+    val marksLine = if (uiState.isMockExam) {
+        val scheme = MarkingScheme.forExam(uiState.exam)
+        val marks = scheme.marks(score, wrong)
+        stringResource(
+            R.string.result_marks_line,
+            formatMarks(marks), formatMarks(scheme.maxMarks(total)),
+            formatMarks(scheme.correctMarks), formatMarks(scheme.wrongPenalty)
+        )
+    } else null
+
     ResultContent(
         score = score,
         total = total,
+        wrong = wrong,
+        skipped = skipped,
+        marksLine = marksLine,
         fromHistory = fromHistory,
         onShare = {
             AnalyticsManager.logEvent("score_shared", mapOf("score" to score, "total" to total, "share_type" to "image"))
-            val (message, emoji) = performanceMessage(score, total)
+            val (message, emoji) = performanceMessage(context, score, total)
             val examLabel = listOfNotNull(
                 uiState.exam.ifBlank { null },
                 uiState.subject.ifBlank { null }
@@ -78,7 +100,8 @@ fun ResultScreen(
                 score = score,
                 total = total,
                 message = message,
-                emoji = emoji
+                emoji = emoji,
+                tagline = context.getString(R.string.scorecard_tagline)
             )
             val imageUri = ScoreCardRenderer.saveToShareableUri(context, bitmap)
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
@@ -86,11 +109,11 @@ fun ResultScreen(
                 putExtra(Intent.EXTRA_STREAM, imageUri)
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    "I scored $score/$total on ExamAI - Smart Study Assistant! Free exam prep for JEE, NEET & UPSC."
+                    context.getString(R.string.result_share_text, score, total)
                 )
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            context.startActivity(Intent.createChooser(shareIntent, "Share your score"))
+            context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.result_share_chooser)))
         },
         onTryAgain = onTryAgain,
         onNewTopic = onNewTopic,
@@ -102,13 +125,16 @@ fun ResultScreen(
 private fun ResultContent(
     score: Int,
     total: Int,
+    wrong: Int = 0,
+    skipped: Int = 0,
+    marksLine: String? = null,
     fromHistory: Boolean = false,
     onShare: () -> Unit,
     onTryAgain: () -> Unit,
     onNewTopic: () -> Unit,
     onBack: () -> Unit = {}
 ) {
-    val (message, emoji) = performanceMessage(score, total)
+    val (message, emoji) = performanceMessage(LocalContext.current, score, total)
     val trophyScale = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
         trophyScale.animateTo(
@@ -117,18 +143,20 @@ private fun ResultContent(
         )
     }
 
-    GradientBackground(colors = GradientTokens.hero(), animated = true) {
+    GradientBackground(colors = GradientTokens.hero(), animated = false) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .safeDrawingPadding()
+                    .verticalScroll(rememberScrollState())
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Surface(
                     shape = CircleShape,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier
                         .size(96.dp)
                         .scale(trophyScale.value)
@@ -136,7 +164,7 @@ private fun ResultContent(
                     Icon(
                         imageVector = Icons.Default.EmojiEvents,
                         contentDescription = null,
-                        tint = BrandNavy,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(20.dp)
                     )
                 }
@@ -146,7 +174,7 @@ private fun ResultContent(
                         text = "$animatedScore / $total",
                         style = MaterialTheme.typography.displayMedium,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.padding(top = 20.dp)
                     )
                 }
@@ -158,10 +186,26 @@ private fun ResultContent(
                 Text(
                     text = message,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White.copy(alpha = 0.9f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
+                    modifier = Modifier.padding(top = 8.dp, bottom = if (marksLine == null) 16.dp else 8.dp)
                 )
+                Text(
+                    text = stringResource(R.string.result_correct_wrong_skipped, score, wrong, skipped),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = if (marksLine == null) 16.dp else 4.dp)
+                )
+                if (marksLine != null) {
+                    Text(
+                        text = marksLine,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
 
                 TextButton(
                     onClick = onShare,
@@ -170,20 +214,21 @@ private fun ResultContent(
                     Icon(
                         imageVector = Icons.Default.Share,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(18.dp)
                     )
                     Text(
-                        text = "Share Score",
-                        color = Color.White,
+                        text = stringResource(R.string.result_share_score),
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.padding(start = 6.dp)
                     )
                 }
 
+                com.ai.studyassistant.ui.components.FocusRewardCard("results_focus")
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 56.dp),
+                        .padding(top = 16.dp, bottom = 56.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     OutlinedButton(
@@ -192,7 +237,7 @@ private fun ResultContent(
                             .weight(1f)
                             .bounceClick()
                     ) {
-                        Text(if (fromHistory) "Back" else "New Topic")
+                        Text(if (fromHistory) stringResource(R.string.common_back) else stringResource(R.string.result_new_topic))
                     }
                     Button(
                         onClick = onTryAgain,
@@ -200,7 +245,7 @@ private fun ResultContent(
                             .weight(1f)
                             .bounceClick()
                     ) {
-                        Text("Try Again")
+                        Text(stringResource(R.string.result_try_again))
                     }
                 }
             }
@@ -217,14 +262,20 @@ private fun ResultContent(
     }
 }
 
-private fun performanceMessage(score: Int, total: Int): Pair<String, String> {
+/** Whole numbers without a trailing ".0"; otherwise up to two decimals. */
+internal fun formatMarks(value: Float): String {
+    val rounded = Math.round(value * 100f) / 100f
+    return if (rounded == rounded.toInt().toFloat()) rounded.toInt().toString() else rounded.toString()
+}
+
+private fun performanceMessage(context: android.content.Context, score: Int, total: Int): Pair<String, String> {
     val ratio = score.toFloat() / total
     return when {
-        ratio >= 1f -> "Outstanding! You're exam ready!" to "🏆"
-        ratio >= 0.8f -> "Excellent work! Keep it up!" to "🌟"
-        ratio >= 0.6f -> "Good effort, keep practicing!" to "👍"
-        ratio >= 0.4f -> "You need more practice." to "💪"
-        else -> "Don't worry, keep learning and try again!" to "📚"
+        ratio >= 1f -> context.getString(R.string.result_msg_outstanding) to "🏆"
+        ratio >= 0.8f -> context.getString(R.string.result_msg_excellent) to "🌟"
+        ratio >= 0.6f -> context.getString(R.string.result_msg_good) to "👍"
+        ratio >= 0.4f -> context.getString(R.string.result_msg_more_practice) to "💪"
+        else -> context.getString(R.string.result_msg_dont_worry) to "📚"
     }
 }
 

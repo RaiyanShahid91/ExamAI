@@ -28,7 +28,8 @@ object UpdateManager {
         context: Context,
         onAvailable: (AppUpdateInfo) -> Unit,
         onResumable: (AppUpdateInfo) -> Unit = {},
-        onNotAvailable: () -> Unit = {}
+        onNotAvailable: () -> Unit = {},
+        onFailure: (Throwable) -> Unit = {}
     ) {
         val appUpdateManager = AppUpdateManagerFactory.create(context.applicationContext)
         appUpdateManager.appUpdateInfo
@@ -43,7 +44,7 @@ object UpdateManager {
             }
             .addOnFailureListener { e ->
                 AnalyticsManager.recordNonFatal(e, context = "UpdateManager.checkForUpdate")
-                onNotAvailable()
+                onFailure(e)
             }
     }
 
